@@ -135,61 +135,11 @@ partita(partita46).
 partita(partita47).
 partita(partita48).
 
-% ─── Assegnazione fissa delle partite alle giornate ────────────
+% Ogni partita deve essere in esattamente una giornata
+1 { partita_giornata(P,G) : giornata(G) } 1 :- partita(P).
 
-% Partite 1–16 → giornata1
-partita_giornata(partita1,  giornata1).
-partita_giornata(partita2,  giornata1).
-partita_giornata(partita3,  giornata1).
-partita_giornata(partita4,  giornata1).
-partita_giornata(partita5,  giornata1).
-partita_giornata(partita6,  giornata1).
-partita_giornata(partita7,  giornata1).
-partita_giornata(partita8,  giornata1).
-partita_giornata(partita9,  giornata1).
-partita_giornata(partita10, giornata1).
-partita_giornata(partita11, giornata1).
-partita_giornata(partita12, giornata1).
-partita_giornata(partita13, giornata1).
-partita_giornata(partita14, giornata1).
-partita_giornata(partita15, giornata1).
-partita_giornata(partita16, giornata1).
-
-% Partite 17–32 → giornata2
-partita_giornata(partita17, giornata2).
-partita_giornata(partita18, giornata2).
-partita_giornata(partita19, giornata2).
-partita_giornata(partita20, giornata2).
-partita_giornata(partita21, giornata2).
-partita_giornata(partita22, giornata2).
-partita_giornata(partita23, giornata2).
-partita_giornata(partita24, giornata2).
-partita_giornata(partita25, giornata2).
-partita_giornata(partita26, giornata2).
-partita_giornata(partita27, giornata2).
-partita_giornata(partita28, giornata2).
-partita_giornata(partita29, giornata2).
-partita_giornata(partita30, giornata2).
-partita_giornata(partita31, giornata2).
-partita_giornata(partita32, giornata2).
-
-% Partite 33–48 → giornata3
-partita_giornata(partita33, giornata3).
-partita_giornata(partita34, giornata3).
-partita_giornata(partita35, giornata3).
-partita_giornata(partita36, giornata3).
-partita_giornata(partita37, giornata3).
-partita_giornata(partita38, giornata3).
-partita_giornata(partita39, giornata3).
-partita_giornata(partita40, giornata3).
-partita_giornata(partita41, giornata3).
-partita_giornata(partita42, giornata3).
-partita_giornata(partita43, giornata3).
-partita_giornata(partita44, giornata3).
-partita_giornata(partita45, giornata3).
-partita_giornata(partita46, giornata3).
-partita_giornata(partita47, giornata3).
-partita_giornata(partita48, giornata3).
+% Ogni giornata deve contenere esattamente sei partite
+6 { partita_giornata(P,G) : partita(P) } 6 :- giornata(G).
 
 
 % In ogni singola partita P le due squadre devono essere diverse ma dello stesso girone
