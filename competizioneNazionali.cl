@@ -135,18 +135,27 @@ partita(partita46).
 partita(partita47).
 partita(partita48).
 
-% Ogni partita deve essere in esattamente una giornata
-1 { partita_giornata(P,G) : giornata(G) } 1 :- partita(P).
-
-% Ogni giornata deve contenere esattamente sei partite
-6 { partita_giornata(P,G) : partita(P) } 6 :- giornata(G).
-
-
-% In ogni singola partita P le due squadre devono essere diverse ma dello stesso girone
+% Genera ogni match una sola volta (A<B) e solo tra squadre dello stesso girone
 1 { match(P,A,B) :
       squadra(A), squadra(B), A < B,
       assegnazione(A,G), assegnazione(B,G)
   } 1 :- partita(P).
 
+% Assegna OGNI match P a esattamente UNA giornata D
+1 { partita_giornata(P,D) : giornata(D) } 1 :- match(P,_,_).
+
+% Impone ESATTAMENTE 2 match per girone G e giornata D
+2 { partita_giornata(P,D) :
+      match(P,A,B),
+      assegnazione(A,G), assegnazione(B,G)
+  } 2 :- girone(G), giornata(D).
+
 % Non può esserci tra partite diverse lo stesso scontro A–B
 :- match(P1,A,B), match(P2,A,B), P1 < P2.
+
+% Predicato di supporto: squadra T gioca in P nel giorno D
+gioca(T,P,D) :- match(P,A,B), partita_giornata(P,D),T = A.
+gioca(T,P,D) :- match(P,A,B), partita_giornata(P,D),T = B.
+
+% Integrity constraint: nessuna squadra può giocare due partite diverse nello stesso giorno
+:- gioca(T,P1,D), gioca(T,P2,D), P1 < P2.
