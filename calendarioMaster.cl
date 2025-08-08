@@ -1,6 +1,55 @@
 ore_totali_master(1152).
 ore_occupate_master(270).
 
+% Predicato di supporto: week_num(settimanaN,N).
+week_num(settimana1,  1).
+week_num(settimana2,  2).
+week_num(settimana3,  3).
+week_num(settimana4,  4).
+week_num(settimana5,  5).
+week_num(settimana6,  6).
+week_num(settimana7,  7).
+week_num(settimana8,  8).
+week_num(settimana9,  9).
+week_num(settimana10, 10).
+week_num(settimana11, 11).
+week_num(settimana12, 12).
+week_num(settimana13, 13).
+week_num(settimana14, 14).
+week_num(settimana15, 15).
+week_num(settimana16, 16).
+week_num(settimana17, 17).
+week_num(settimana18, 18).
+week_num(settimana19, 19).
+week_num(settimana20, 20).
+week_num(settimana21, 21).
+week_num(settimana22, 22).
+week_num(settimana23, 23).
+week_num(settimana24, 24).
+
+daynum(lunedi, 1).
+daynum(martedi, 2).
+daynum(mercoledi, 3).
+daynum(giovedi, 4).
+daynum(venerdi, 5).
+daynum(sabato, 6).
+
+% — relazioni propedeutiche — 
+
+prereq(fondamenti_ict_paradigmi_programmazione, ambienti_sviluppo_linguaggi_client_side_web).
+prereq(ambienti_sviluppo_linguaggi_client_side_web, progettazione_sviluppo_app_web_mobile_i).
+prereq(progettazione_sviluppo_app_web_mobile_i, progettazione_sviluppo_app_web_mobile_ii).
+prereq(progettazione_basi_dati, tecnologie_server_side_web).
+prereq(linguaggi_markup, ambienti_sviluppo_linguaggi_client_side_web).
+prereq(project_management, marketing_digitale).
+prereq(marketing_digitale, tecniche_strumenti_marketing_digitale).
+prereq(project_management, strumenti_metodi_interazione_social_media).
+prereq(project_management, progettazione_grafica_design_interfacce).
+prereq(acquisizione_elaborazione_immagini_statiche_grafica, elementi_fotografia_digitale).
+prereq(elementi_fotografia_digitale, acquisizione_elaborazione_sequenze_immagini).
+prereq(acquisizione_elaborazione_immagini_statiche_grafica, grafica_3d).
+
+
 % ————————————————————————————
 % Insegnamenti, docenti e ore
 % ————————————————————————————
@@ -184,98 +233,150 @@ giorno_disponibile(settimana7,G) :-  giorno(G).
 giorno_disponibile(settimana16,G) :- giorno(G).
 
 recupero(0..1).
+prima_lezione(0..1).
+ultima_lezione(0..1).
 
 % Generazione delle lezioni normali
-H { lezione(I,S,G,D,O,0) : settimana(S), giorno_disponibile(S,G), insegna(D,I), slot(O), recupero(0) } H :- insegnamento(I), ore_per_insegnamento(I,H).
+H { lezione(I,S,G,D,O,0,P,U) 
+    : settimana(S),
+      giorno_disponibile(S,G),
+      insegna(D,I),
+      slot(O),
+      prima_lezione(P),
+      ultima_lezione(U)
+  } H 
+  :- insegnamento(I), 
+     ore_per_insegnamento(I,H).
+% ogni corso ha esattamente una “prima” lezione
+1 { lezione(I,S,G,D,O,0,1,0) 
+    : settimana(S),
+      giorno_disponibile(S,G),
+      insegna(D,I),
+      slot(O)
+  } 1 
+  :- insegnamento(I).
+  % ogni corso ha esattamente una “ultima” lezione
+1 { lezione(I,S,G,D,O,0,0,1) 
+    : settimana(S),
+      giorno_disponibile(S,G),
+      insegna(D,I),
+      slot(O)
+  } 1 
+  :- insegnamento(I).
+
+% ———————————————————————————————
+% non può esserci una lezione marcata sia come “prima” che come “ultima”
+% ———————————————————————————————
+:- lezione(I, S, G, D, O, Rec, 1, 1).
+
+% —————————————————————————————
+% First lesson: nessuna lezione in settimana minore
+% —————————————————————————————
+:- lezione(C,S1,_,_,O1,_,1,_), lezione(C,S2,_,_,O2,_,_,_), week_num(S2,N2), week_num(S1,N1), N2 < N1.
+
+% First lesson: nessuna lezione in stesso S ma giorno minore
+:- lezione(C,S,G1,_,O1,_,1,_), lezione(C,S,G2,_,O2,_,_,_), daynum(G2,D2), daynum(G1,D1), D2 < D1.
+
+% First lesson: nessuna lezione in stesso S,G ma slot minore
+:- lezione(C,S,G,_,O1,_,1,_), lezione(C,S,G,_,O2,_,_,_), O2 < O1.
+
+% —————————————————————————————
+% Last lesson: nessuna lezione in settimana maggiore
+% —————————————————————————————
+:- lezione(C,S1,_,_,O1,_,_,1), lezione(C,S2,_,_,O2,_,_,_), week_num(S2,N2), week_num(S1,N1), N2 > N1.
+
+% Last lesson: nessuna lezione in stesso S ma giorno maggiore
+:- lezione(C,S,G1,_,O1,_,_,1), lezione(C,S,G2,_,O2,_,_,_), daynum(G2,D2), daynum(G1,D1), D2 > D1.
+
+% Last lesson: nessuna lezione in stesso S,G ma slot maggiore
+:- lezione(C,S,G,_,O1,_,_,1), lezione(C,S,G,_,O2,_,_,_), O2 > O1.
+
 
 % Esempio di presentazione master
-lezione(presentazione_master,settimana1,venerdi,presentatore,1,0).
-lezione(presentazione_master,settimana1,venerdi,presentatore,2,0).
+lezione(presentazione_master, settimana1, venerdi, presentatore, 1, 0, 1, 0).
+lezione(presentazione_master, settimana1, venerdi, presentatore, 2, 0, 0, 1).
 
-% Vincoli: fino a 4 ore per docente al giorno (normali o recupero)
-0 { lezione(I,S,G,Docente,O,Rec) : settimana(S), insegna(Docente,I), slot(O), recupero(Rec) } 4 :- giorno_disponibile(S,G), docente(Docente).
 
-0 { lezione(I,S,G,D,O,Rec) : insegna(D,I), recupero(Rec) } 1 :- settimana(S), giorno_disponibile(S,G), slot(O).
+% Vincolo: massimo 4 ore (normali o recupero) per docente D in ciascuna (S,G)
+0 { lezione(I, S, G, D, O, Rec, P, U)
+  : settimana(S),
+    giorno_disponibile(S, G),
+    insegna(D, I),
+    slot(O),
+    recupero(Rec),
+    prima_lezione(P),
+    ultima_lezione(U)
+} 4
+  :- docente(D), giorno_disponibile(S, G).
 
-% Predicato di supporto: week_num(settimanaN,N).
-week_num(settimana1,  1).
-week_num(settimana2,  2).
-week_num(settimana3,  3).
-week_num(settimana4,  4).
-week_num(settimana5,  5).
-week_num(settimana6,  6).
-week_num(settimana7,  7).
-week_num(settimana8,  8).
-week_num(settimana9,  9).
-week_num(settimana10, 10).
-week_num(settimana11, 11).
-week_num(settimana12, 12).
-week_num(settimana13, 13).
-week_num(settimana14, 14).
-week_num(settimana15, 15).
-week_num(settimana16, 16).
-week_num(settimana17, 17).
-week_num(settimana18, 18).
-week_num(settimana19, 19).
-week_num(settimana20, 20).
-week_num(settimana21, 21).
-week_num(settimana22, 22).
-week_num(settimana23, 23).
-week_num(settimana24, 24).
+% al massimo una lezione per docente D in ciascuna (settimana S, giorno G, slot O)
+0 { lezione(I, S, G, D, O, Rec, P, U)
+  : insegna(D, I),
+    recupero(Rec),
+    prima_lezione(P),
+    ultima_lezione(U)
+} 1
+  :- settimana(S), giorno_disponibile(S, G), slot(O).
+
+
 
 % Integrity constraint: Project Management deve concludersi entro la settimana 9
-:- lezione(project_management, S, G, D, O, R),
+:- lezione(project_management, S, G, D, O, Rec, P, U),
    week_num(S, W),
    W > 9.
 
-daynum(lunedi, 1).
-daynum(martedi, 2).
-daynum(mercoledi, 3).
-daynum(giovedi, 4).
-daynum(venerdi, 5).
-daynum(sabato, 6).
-
-% — relazioni propedeutiche — 
-
-prereq(fondamenti_ict_paradigmi_programmazione, ambienti_sviluppo_linguaggi_client_side_web).
-prereq(ambienti_sviluppo_linguaggi_client_side_web, progettazione_sviluppo_app_web_mobile_i).
-prereq(progettazione_sviluppo_app_web_mobile_i, progettazione_sviluppo_app_web_mobile_ii).
-prereq(progettazione_basi_dati, tecnologie_server_side_web).
-prereq(linguaggi_markup, ambienti_sviluppo_linguaggi_client_side_web).
-prereq(project_management, marketing_digitale).
-prereq(marketing_digitale, tecniche_strumenti_marketing_digitale).
-prereq(project_management, strumenti_metodi_interazione_social_media).
-prereq(project_management, progettazione_grafica_design_interfacce).
-prereq(acquisizione_elaborazione_immagini_statiche_grafica, elementi_fotografia_digitale).
-prereq(elementi_fotografia_digitale, acquisizione_elaborazione_sequenze_immagini).
-prereq(acquisizione_elaborazione_immagini_statiche_grafica, grafica_3d).
 
 % vincolo per settimane diverse usando week_num
 :- prereq(P,C),
-   lezione(P, WS1, _, _, _, _),
-   lezione(C, WS2, _, _, _, _),
+   lezione(P, WS1, _, _, _, _, _, _),
+   lezione(C, WS2, _, _, _, _, _, _),
    week_num(WS1, N1),
    week_num(WS2, N2),
    N1 > N2.
 
 % vincolo per stessa settimana, ordinamento per giorno
 :- prereq(P,C),
-   lezione(P, W, Gp, _, _, _),
-   lezione(C, W, Gc, _, _, _),
+   lezione(P, W, Gp, _, _, _, _, _),
+   lezione(C, W, Gc, _, _, _, _, _),
    daynum(Gp, Dp),
    daynum(Gc, Dc),
    Dp > Dc.
 
 % vincolo per stesso giorno, ordinamento per slot
 :- prereq(P,C),
-   lezione(P, W, G, Tp, _, _),
-   lezione(C, W, G, Tc, _, _),
+   lezione(P, W, G, Tp, _, _, _, _),
+   lezione(C, W, G, Tc, _, _, _, _),
    Tp >= Tc.
 
-corso_giorno(I,S,G) :- lezione(I,S,G,_,_,_).
-2 { lezione(I,S,G,D,O,Rec) 
-    : insegna(D,I), recupero(Rec), slot(O) 
-  } 4 
-  :- corso_giorno(I,S,G).
 
-#show corso_giorno/3.
+0 { lezione(I,S,G,D,O,Rec,P,U)
+    : insegnamento(I),
+      insegna(D,I),
+      recupero(Rec),
+      prima_lezione(P),
+      ultima_lezione(U)
+  } 1
+  :- docente(D), settimana(S), giorno_disponibile(S,G), slot(O).
+
+% al massimo una lezione per docente D in ciascuna (settimana S, giorno G, slot O)
+0 { lezione(I, S, G, D, O, Rec, P, U)
+  : insegnamento(I),
+    insegna(D, I),
+    slot(O),
+    recupero(Rec),
+    prima_lezione(P),
+    ultima_lezione(U)
+} 1
+  :- docente(D), settimana(S), giorno_disponibile(S, G), slot(O).
+
+% vincolo: per ogni insegnamento I, settimana S e giorno G
+% devono esserci tra 2 e 4 lezioni (normali o recupero)
+2 { lezione(I, S, G, D, O, Rec, P, U) :
+      insegna(D, I),
+      slot(O),
+      recupero(Rec),
+      prima_lezione(P),
+      ultima_lezione(U)
+  } 4
+  :- insegnamento(I), settimana(S), day(G).
+#show lezione/8.
