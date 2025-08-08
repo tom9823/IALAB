@@ -57,6 +57,7 @@ partita(partita1;partita2;partita3;partita4;partita5;partita6;partita7;partita8;
 
 % Non può esserci tra partite diverse lo stesso scontro A–B
 :- match(P1,A,B), match(P2,A,B), P1 < P2.
+:- match(P1,A,B), match(P2,B,A), P1 < P2.
 
 % Predicato di supporto: squadra T gioca in P nel giorno D
 gioca(T,P,D) :- match(P,A,B), partita_giornata(P,D),T = A.

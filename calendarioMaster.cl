@@ -295,7 +295,7 @@ giorno_disponibile(settimana16,G) :- giorno(G).
 recupero(0..1).
 
 % Generazione delle lezioni normali
-H { lezione(I,S,G,D,O,Rec) : settimana(S), giorno_disponibile(S,G), insegna(D,I), slot(O), recupero(0) } H :- insegnamento(I), ore_per_insegnamento(I,H).
+H { lezione(I,S,G,D,O,0) : settimana(S), giorno_disponibile(S,G), insegna(D,I), slot(O), recupero(0) } H :- insegnamento(I), ore_per_insegnamento(I,H).
 
 % Esempio di presentazione master
 lezione(presentazione_master,settimana1,venerdi,presentatore,1,0).
@@ -310,5 +310,35 @@ lezione(presentazione_master,settimana1,venerdi,presentatore,2,0).
 % Non sovrapposizione oraria
 :- lezione(I1,S,G,D,O,Rec1), lezione(I2,S,G,D,O,Rec2), I1 < I2.
 
+% Predicato di supporto: week_num(settimanaN,N).
+week_num(settimana1,  1).
+week_num(settimana2,  2).
+week_num(settimana3,  3).
+week_num(settimana4,  4).
+week_num(settimana5,  5).
+week_num(settimana6,  6).
+week_num(settimana7,  7).
+week_num(settimana8,  8).
+week_num(settimana9,  9).
+week_num(settimana10, 10).
+week_num(settimana11, 11).
+week_num(settimana12, 12).
+week_num(settimana13, 13).
+week_num(settimana14, 14).
+week_num(settimana15, 15).
+week_num(settimana16, 16).
+week_num(settimana17, 17).
+week_num(settimana18, 18).
+week_num(settimana19, 19).
+week_num(settimana20, 20).
+week_num(settimana21, 21).
+week_num(settimana22, 22).
+week_num(settimana23, 23).
+week_num(settimana24, 24).
+
+% Integrity constraint: Project Management deve concludersi entro la settimana 9
+:- lezione(project_management, S, G, D, O, R),
+   week_num(S, W),
+   W > 9.
 
 #show lezione/6.
