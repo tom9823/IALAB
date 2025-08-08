@@ -1,26 +1,45 @@
 ore_totali_master(1152).
 ore_occupate_master(270).
 
-
-% ————————————————————————————
-% Slot orari (1–8)
-% ————————————————————————————
-slot(1..8).
-
 % ————————————————————————————
 % Insegnamenti, docenti e ore
 % ————————————————————————————
 
-% Progettazione di basi di dati
-insegnamento(progettazione_basi_dati).
-docente(mazzei).
-insegna(mazzei,progettazione_basi_dati).
+% Project Management
+insegnamento(project_management).
+docente(muzzetto).
+ore_per_insegnamento(project_management,14).
+insegna(muzzetto,project_management).
 
-% Progettazione di basi di dati
-insegnamento(progettazione_basi_dati).
-docente(mazzei).
-ore_per_insegnamento(progettazione_basi_dati,20).
-insegna(mazzei,progettazione_basi_dati).
+% Fondamenti di ICT e Paradigmi di Programmazione
+insegnamento(fondamenti_ict_paradigmi_programmazione).
+docente(pozzato).
+ore_per_insegnamento(fondamenti_ict_paradigmi_programmazione,14).
+insegna(pozzato,fondamenti_ict_paradigmi_programmazione).
+
+% Linguaggi di markup
+insegnamento(linguaggi_markup).
+docente(schifanella_rossano).
+ore_per_insegnamento(linguaggi_markup,20).
+insegna(schifanella_rossano,linguaggi_markup).
+
+% La gestione della qualità
+insegnamento(gestione_qualita).
+docente(tomatis).
+ore_per_insegnamento(gestione_qualita,10).
+insegna(tomatis,gestione_qualita).
+
+% Ambienti di sviluppo e linguaggi client-side per il web
+insegnamento(ambienti_sviluppo_linguaggi_client_side_web).
+docente(micalizio).
+ore_per_insegnamento(ambienti_sviluppo_linguaggi_client_side_web,20).
+insegna(micalizio,ambienti_sviluppo_linguaggi_client_side_web).
+
+% Progettazione grafica e design di interfacce
+insegnamento(progettazione_grafica_design_interfacce).
+docente(terranova).
+ore_per_insegnamento(progettazione_grafica_design_interfacce,10).
+insegna(terranova,progettazione_grafica_design_interfacce).
 
 % Strumenti e metodi di interazione nei Social media
 insegnamento(strumenti_metodi_interazione_social_media).
@@ -142,139 +161,11 @@ docente(presentatore).
 ore_per_insegnamento(presentazione_master,2).
 insegna(presentatore,presentazione_master).
 
-% ————————————————————————————————
-% Definizione dei giorni della settimana di lezione del master
-% ————————————————————————————————
-giorno(lunedi; martedi; mercoledi; giovedi; venerdi; sabato).
-% ————————————————————————————
-% Insegnamenti, docenti e ore
-% ————————————————————————————
-
 % Progettazione di basi di dati
 insegnamento(progettazione_basi_dati).
 docente(mazzei).
 ore_per_insegnamento(progettazione_basi_dati,20).
-insegna(mazzetto,progettazione_basi_dati).
-
-% Strumenti e metodi di interazione nei Social media
-insegnamento(strumenti_metodi_interazione_social_media).
-docente(giordani).
-ore_per_insegnamento(strumenti_metodi_interazione_social_media,14).
-insegna(giordani,strumenti_metodi_interazione_social_media).
-
-% Acquisizione ed elaborazione di immagini statiche – grafica
-insegnamento(acquisizione_elaborazione_immagini_statiche_grafica).
-docente(zanchetta).
-ore_per_insegnamento(acquisizione_elaborazione_immagini_statiche_grafica,14).
-insegna(zanchetta,acquisizione_elaborazione_immagini_statiche_grafica).
-
-% Accessibilità e usabilità nella progettazione multimediale
-insegnamento(accessibilita_usabilita_progettazione_multimediale).
-docente(gena).
-ore_per_insegnamento(accessibilita_usabilita_progettazione_multimediale,14).
-insegna(gena,accessibilita_usabilita_progettazione_multimediale).
-
-% Marketing digitale
-insegnamento(marketing_digitale).
-docente(muzzetto).
-ore_per_insegnamento(marketing_digitale,10).
-insegna(muzzetto,marketing_digitale).
-
-% Elementi di fotografia digitale
-insegnamento(elementi_fotografia_digitale).
-docente(vargiu).
-ore_per_insegnamento(elementi_fotografia_digitale,10).
-insegna(vargiu,elementi_fotografia_digitale).
-
-% Risorse digitali per il progetto: collaborazione e documentazione
-insegnamento(risorse_digitali_collaborazione_documentazione).
-docente(boniolo).
-ore_per_insegnamento(risorse_digitali_collaborazione_documentazione,10).
-insegna(boniolo,risorse_digitali_collaborazione_documentazione).
-
-% Tecnologie server-side per il web
-insegnamento(tecnologie_server_side_web).
-docente(damiano).
-ore_per_insegnamento(tecnologie_server_side_web,20).
-insegna(damiano,tecnologie_server_side_web).
-
-% Tecniche e strumenti di Marketing digitale
-insegnamento(tecniche_strumenti_marketing_digitale).
-docente(zanchetta).
-ore_per_insegnamento(tecniche_strumenti_marketing_digitale,10).
-insegna(zanchetta,tecniche_strumenti_marketing_digitale).
-
-% Introduzione al social media management
-insegnamento(introduzione_social_media_management).
-docente(suppini).
-ore_per_insegnamento(introduzione_social_media_management,14).
-insegna(suppini,introduzione_social_media_management).
-
-% Acquisizione ed elaborazione del suono
-insegnamento(acquisizione_elaborazione_suono).
-docente(valle).
-ore_per_insegnamento(acquisizione_elaborazione_suono,10).
-insegna(valle,acquisizione_elaborazione_suono).
-
-% Acquisizione ed elaborazione di sequenze di immagini digitali
-insegnamento(acquisizione_elaborazione_sequenze_immagini).
-docente(ghidelli).
-ore_per_insegnamento(acquisizione_elaborazione_sequenze_immagini,20).
-insegna(ghidelli,acquisizione_elaborazione_sequenze_immagini).
-
-% Comunicazione pubblicitaria e comunicazione pubblica
-insegnamento(comunicazione_pubblicitaria_pubblica).
-docente(gabardi).
-ore_per_insegnamento(comunicazione_pubblicitaria_pubblica,14).
-insegna(gabardi,comunicazione_pubblicitaria_pubblica).
-
-% Semiologia e multimedialità
-insegnamento(semiologia_multimedialita).
-docente(santangelo).
-ore_per_insegnamento(semiologia_multimedialita,10).
-insegna(santangelo,semiologia_multimedialita).
-
-% Crossmedia: articolazione delle scritture multimediali
-insegnamento(crossmedia_articolazione_scritture_multimediali).
-docente(taddeo).
-ore_per_insegnamento(crossmedia_articolazione_scritture_multimediali,20).
-insegna(taddeo,crossmedia_articolazione_scritture_multimediali).
-
-% Grafica 3D
-insegnamento(grafica_3d).
-docente(gribaudo).
-ore_per_insegnamento(grafica_3d,20).
-insegna(gribaudo,grafica_3d).
-
-% Progettazione e sviluppo di applicazioni web su dispositivi mobile I
-insegnamento(progettazione_sviluppo_app_web_mobile_i).
-docente(schifanella_rossano).
-ore_per_insegnamento(progettazione_sviluppo_app_web_mobile_i,10).
-insegna(schifanella_rossano,progettazione_sviluppo_app_web_mobile_i).
-
-% Progettazione e sviluppo di applicazioni web su dispositivi mobile II
-insegnamento(progettazione_sviluppo_app_web_mobile_ii).
-docente(schifanella_claudio).
-ore_per_insegnamento(progettazione_sviluppo_app_web_mobile_ii,10).
-insegna(schifanella_claudio,progettazione_sviluppo_app_web_mobile_ii).
-
-% La gestione delle risorse umane
-insegnamento(gestione_risorse_umane).
-docente(lombardo).
-ore_per_insegnamento(gestione_risorse_umane,10).
-insegna(lombardo,gestione_risorse_umane).
-
-% I vincoli giuridici del progetto: diritto dei media
-insegnamento(diritto_media).
-docente(travostino).
-ore_per_insegnamento(diritto_media,10).
-insegna(travostino,diritto_media).
-
-% Corso fittizio: presentazione del master
-insegnamento(presentazione_master).
-docente(presentatore).
-ore_per_insegnamento(presentazione_master,2).
-insegna(presentatore,presentazione_master).
+insegna(mazzei,progettazione_basi_dati).
 
 % ————————————————————————————
 % Definizione delle 24 settimane del Master
@@ -304,11 +195,7 @@ lezione(presentazione_master,settimana1,venerdi,presentatore,2,0).
 % Vincoli: fino a 4 ore per docente al giorno (normali o recupero)
 0 { lezione(I,S,G,Docente,O,Rec) : settimana(S), insegna(Docente,I), slot(O), recupero(Rec) } 4 :- giorno_disponibile(S,G), docente(Docente).
 
-% Vincoli: tra 2 e 4 ore per insegnamento al giorno (normali o recupero)
-2 { lezione(I,S,G,D,O,Rec) : settimana(S), giorno_disponibile(S,G), docente(D), slot(O), recupero(Rec) } 4 :- giorno_disponibile(S,G), insegnamento(I).
-
-% Non sovrapposizione oraria
-:- lezione(I1,S,G,D,O,Rec1), lezione(I2,S,G,D,O,Rec2), I1 < I2.
+0 { lezione(I,S,G,D,O,Rec) : insegna(D,I), recupero(Rec) } 1 :- settimana(S), giorno_disponibile(S,G), slot(O).
 
 % Predicato di supporto: week_num(settimanaN,N).
 week_num(settimana1,  1).
@@ -341,4 +228,54 @@ week_num(settimana24, 24).
    week_num(S, W),
    W > 9.
 
-#show lezione/6.
+daynum(lunedi, 1).
+daynum(martedi, 2).
+daynum(mercoledi, 3).
+daynum(giovedi, 4).
+daynum(venerdi, 5).
+daynum(sabato, 6).
+
+% — relazioni propedeutiche — 
+
+prereq(fondamenti_ict_paradigmi_programmazione, ambienti_sviluppo_linguaggi_client_side_web).
+prereq(ambienti_sviluppo_linguaggi_client_side_web, progettazione_sviluppo_app_web_mobile_i).
+prereq(progettazione_sviluppo_app_web_mobile_i, progettazione_sviluppo_app_web_mobile_ii).
+prereq(progettazione_basi_dati, tecnologie_server_side_web).
+prereq(linguaggi_markup, ambienti_sviluppo_linguaggi_client_side_web).
+prereq(project_management, marketing_digitale).
+prereq(marketing_digitale, tecniche_strumenti_marketing_digitale).
+prereq(project_management, strumenti_metodi_interazione_social_media).
+prereq(project_management, progettazione_grafica_design_interfacce).
+prereq(acquisizione_elaborazione_immagini_statiche_grafica, elementi_fotografia_digitale).
+prereq(elementi_fotografia_digitale, acquisizione_elaborazione_sequenze_immagini).
+prereq(acquisizione_elaborazione_immagini_statiche_grafica, grafica_3d).
+
+% vincolo per settimane diverse usando week_num
+:- prereq(P,C),
+   lezione(P, WS1, _, _, _, _),
+   lezione(C, WS2, _, _, _, _),
+   week_num(WS1, N1),
+   week_num(WS2, N2),
+   N1 > N2.
+
+% vincolo per stessa settimana, ordinamento per giorno
+:- prereq(P,C),
+   lezione(P, W, Gp, _, _, _),
+   lezione(C, W, Gc, _, _, _),
+   daynum(Gp, Dp),
+   daynum(Gc, Dc),
+   Dp > Dc.
+
+% vincolo per stesso giorno, ordinamento per slot
+:- prereq(P,C),
+   lezione(P, W, G, Tp, _, _),
+   lezione(C, W, G, Tc, _, _),
+   Tp >= Tc.
+
+corso_giorno(I,S,G) :- lezione(I,S,G,_,_,_).
+2 { lezione(I,S,G,D,O,Rec) 
+    : insegna(D,I), recupero(Rec), slot(O) 
+  } 4 
+  :- corso_giorno(I,S,G).
+
+#show corso_giorno/3.
