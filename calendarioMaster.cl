@@ -229,49 +229,52 @@ giorno(lunedi; martedi; mercoledi; giovedi; venerdi; sabato).
 
 giorno_disponibile(S,venerdi) :- settimana(S).
 giorno_disponibile(S,sabato) :- settimana(S).
-giorno_disponibile(settimana7,G) :-  giorno(G).
-giorno_disponibile(settimana16,G) :- giorno(G).
+giorno_disponibile(settimana7,G) :-  giorno(G), G != venerdi, G != sabato.
+giorno_disponibile(settimana16,G) :- giorno(G), G != venerdi, G != sabato.
+cap_giorno(sabato, 6).
+cap_giorno(G, 8) :- giorno(G), G != sabato.
+
+% slot ammessi dato (settimana, giorno)
+slot_ammissibile(S,G,O) :-
+  giorno_disponibile(S,G),
+  cap_giorno(G,Cap),
+  slot(O), O <= Cap.
 
 recupero(0..1).
 prima_lezione(0..1).
 ultima_lezione(0..1).
 
-% Generazione delle lezioni normali
-H { lezione(I,S,G,D,O,0,P,U) 
-    : settimana(S),
-      giorno_disponibile(S,G),
-      insegna(D,I),
-      slot(O),
-      prima_lezione(P),
-      ultima_lezione(U)
-  } H 
-  :- insegnamento(I), 
-     ore_per_insegnamento(I,H).
+% Generazione lezioni (solo sugli slot ammessi)
+H { lezione(I,S,G,D,O,0,P,U)
+    : insegna(D,I),
+      slot_ammissibile(S,G,O),
+      prima_lezione(P), ultima_lezione(U)
+  } H
+  :- insegnamento(I), ore_per_insegnamento(I,H).
+
+
 % ogni corso ha esattamente una “prima” lezione
 1 { lezione(I,S,G,D,O,0,1,0) 
-    : settimana(S),
-      giorno_disponibile(S,G),
+    : 
+      slot_ammissibile(S,G,O),
       insegna(D,I),
       slot(O)
   } 1 
   :- insegnamento(I).
-  % ogni corso ha esattamente una “ultima” lezione
+
+% ogni corso ha esattamente una “ultima” lezione
 1 { lezione(I,S,G,D,O,0,0,1) 
-    : settimana(S),
-      giorno_disponibile(S,G),
+    :
+      slot_ammissibile(S,G,O),
       insegna(D,I),
       slot(O)
   } 1 
   :- insegnamento(I).
 
-% ———————————————————————————————
-% non può esserci una lezione marcata sia come “prima” che come “ultima”
-% ———————————————————————————————
-:- lezione(I, S, G, D, O, Rec, 1, 1).
+% non può esserci una lezione marcata sia come “prima” che come “ultima” se si ha più di un'ora di insegnamento per quel corso
+:- lezione(I, S, G, D, O, Rec, 1, 1), ore_per_insegnamento(I,H), H != 1.
 
-% —————————————————————————————
 % First lesson: nessuna lezione in settimana minore
-% —————————————————————————————
 :- lezione(C,S1,_,_,O1,_,1,_), lezione(C,S2,_,_,O2,_,_,_), week_num(S2,N2), week_num(S1,N1), N2 < N1.
 
 % First lesson: nessuna lezione in stesso S ma giorno minore
@@ -280,9 +283,8 @@ H { lezione(I,S,G,D,O,0,P,U)
 % First lesson: nessuna lezione in stesso S,G ma slot minore
 :- lezione(C,S,G,_,O1,_,1,_), lezione(C,S,G,_,O2,_,_,_), O2 < O1.
 
-% —————————————————————————————
+
 % Last lesson: nessuna lezione in settimana maggiore
-% —————————————————————————————
 :- lezione(C,S1,_,_,O1,_,_,1), lezione(C,S2,_,_,O2,_,_,_), week_num(S2,N2), week_num(S1,N1), N2 > N1.
 
 % Last lesson: nessuna lezione in stesso S ma giorno maggiore
@@ -292,15 +294,15 @@ H { lezione(I,S,G,D,O,0,P,U)
 :- lezione(C,S,G,_,O1,_,_,1), lezione(C,S,G,_,O2,_,_,_), O2 > O1.
 
 
-% Esempio di presentazione master
+% presentazione master
 lezione(presentazione_master, settimana1, venerdi, presentatore, 1, 0, 1, 0).
 lezione(presentazione_master, settimana1, venerdi, presentatore, 2, 0, 0, 1).
 
 
 % Vincolo: massimo 4 ore (normali o recupero) per docente D in ciascuna (S,G)
 0 { lezione(I, S, G, D, O, Rec, P, U)
-  : settimana(S),
-    giorno_disponibile(S, G),
+  : 
+    slot_ammissibile(S,G,O),
     insegna(D, I),
     slot(O),
     recupero(Rec),
@@ -316,8 +318,7 @@ lezione(presentazione_master, settimana1, venerdi, presentatore, 2, 0, 0, 1).
     prima_lezione(P),
     ultima_lezione(U)
 } 1
-  :- settimana(S), giorno_disponibile(S, G), slot(O).
-
+  :- settimana(S), slot_ammissibile(S,G,O).
 
 
 % Integrity constraint: Project Management deve concludersi entro la settimana 9
@@ -349,34 +350,10 @@ lezione(presentazione_master, settimana1, venerdi, presentatore, 2, 0, 0, 1).
    Tp >= Tc.
 
 
-0 { lezione(I,S,G,D,O,Rec,P,U)
-    : insegnamento(I),
-      insegna(D,I),
-      recupero(Rec),
-      prima_lezione(P),
-      ultima_lezione(U)
-  } 1
-  :- docente(D), settimana(S), giorno_disponibile(S,G), slot(O).
-
-% al massimo una lezione per docente D in ciascuna (settimana S, giorno G, slot O)
-0 { lezione(I, S, G, D, O, Rec, P, U)
-  : insegnamento(I),
-    insegna(D, I),
-    slot(O),
-    recupero(Rec),
-    prima_lezione(P),
-    ultima_lezione(U)
-} 1
-  :- docente(D), settimana(S), giorno_disponibile(S, G), slot(O).
-
-% vincolo: per ogni insegnamento I, settimana S e giorno G
-% devono esserci tra 2 e 4 lezioni (normali o recupero)
-2 { lezione(I, S, G, D, O, Rec, P, U) :
-      insegna(D, I),
-      slot(O),
-      recupero(Rec),
-      prima_lezione(P),
-      ultima_lezione(U)
-  } 4
-  :- insegnamento(I), settimana(S), day(G).
+% La distanza tra prima e ultima lezione dell’insegnamento I non supera 8 settimane
+:- lezione(I,S1,_,_,_,_,1,0),
+   lezione(I,S2,_,_,_,_,0,1),
+   week_num(S1,N1),
+   week_num(S2,N2),
+   N2 - N1 > 8.
 #show lezione/8.
