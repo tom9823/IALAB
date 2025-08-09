@@ -59,9 +59,9 @@ partita(partita1;partita2;partita3;partita4;partita5;partita6;partita7;partita8;
 :- match(P1,A,B), match(P2,A,B), P1 < P2.
 :- match(P1,A,B), match(P2,B,A), P1 < P2.
 
-% Predicato di supporto: squadra T gioca in P nel giorno D
+% Predicato di supporto: squadra T gioca in P nella giornata D
 gioca(T,P,D) :- match(P,A,B), partita_giornata(P,D),T = A.
 gioca(T,P,D) :- match(P,A,B), partita_giornata(P,D),T = B.
 
-% Integrity constraint: nessuna squadra può giocare due partite diverse nello stesso giorno
+% Integrity constraint: nessuna squadra può giocare due partite diverse nello stessa giornata D
 :- gioca(T,P1,D), gioca(T,P2,D), P1 < P2.
