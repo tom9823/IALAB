@@ -34,6 +34,8 @@ daynum(giovedi, 4).
 daynum(venerdi, 5).
 daynum(sabato, 6).
 
+% attivo se in (I,S,G) esiste almeno una lezione
+
 % — relazioni propedeutiche — 
 
 prereq(fondamenti_ict_paradigmi_programmazione, ambienti_sviluppo_linguaggi_client_side_web).
@@ -50,9 +52,7 @@ prereq(elementi_fotografia_digitale, acquisizione_elaborazione_sequenze_immagini
 prereq(acquisizione_elaborazione_immagini_statiche_grafica, grafica_3d).
 
 
-% ————————————————————————————
 % Insegnamenti, docenti e ore
-% ————————————————————————————
 
 % Project Management
 insegnamento(project_management).
@@ -255,8 +255,7 @@ H { lezione(I,S,G,D,O,0,P,U)
 
 % ogni corso ha esattamente una “prima” lezione
 1 { lezione(I,S,G,D,O,0,1,0) 
-    : 
-      slot_ammissibile(S,G,O),
+    : slot_ammissibile(S,G,O),
       insegna(D,I),
       slot(O)
   } 1 
@@ -264,8 +263,7 @@ H { lezione(I,S,G,D,O,0,P,U)
 
 % ogni corso ha esattamente una “ultima” lezione
 1 { lezione(I,S,G,D,O,0,0,1) 
-    :
-      slot_ammissibile(S,G,O),
+    : slot_ammissibile(S,G,O),
       insegna(D,I),
       slot(O)
   } 1 
@@ -301,8 +299,7 @@ lezione(presentazione_master, settimana1, venerdi, presentatore, 2, 0, 0, 1).
 
 % Vincolo: massimo 4 ore (normali o recupero) per docente D in ciascuna (S,G)
 0 { lezione(I, S, G, D, O, Rec, P, U)
-  : 
-    slot_ammissibile(S,G,O),
+  : slot_ammissibile(S,G,O),
     insegna(D, I),
     slot(O),
     recupero(Rec),
@@ -356,4 +353,33 @@ lezione(presentazione_master, settimana1, venerdi, presentatore, 2, 0, 0, 1).
    week_num(S1,N1),
    week_num(S2,N2),
    N2 - N1 > 8.
+
+% La prima lezione di A&U deve essere prima dell'ULTIMA di Linguaggi di markup
+
+% (1) settimana: vietato se la prima di A&U è in una settimana successiva all’ultima di LM
+:- lezione(accessibilita_usabilita_progettazione_multimediale, S1, _, _, O1, _, 1, _),
+   lezione(linguaggi_markup,S2, _, _, O2, _, _, 1),
+   week_num(S1, N1), week_num(S2, N2), N1 > N2.
+
+% (2) stesso S, giorno: vietato se la prima di A&U è in un giorno successivo all’ultima di LM
+:- lezione(accessibilita_usabilita_progettazione_multimediale, S, G1, _, O1, _, 1, _),
+   lezione(linguaggi_markup, S, G2, _, O2, _, _, 1),
+   daynum(G1, D1), daynum(G2, D2), D1 > D2.
+
+% (3) stesso S e G, slot: vietato se la prima di A&U non è strettamente prima dell’ultima di LM
+:- lezione(accessibilita_usabilita_progettazione_multimediale, S, G, _, O1, _, 1, _),
+   lezione(linguaggi_markup, S, G, _, O2, _, _, 1),
+   O1 >= O2.
+
+% seconda settimana full-time
+seconda_fulltime(10).
+
+% Crossmedia: la prima lezione deve stare nella settimana 10
+:- lezione(crossmedia_articolazione_scritture_multimediali, S, _, _, _, _, 1, _),
+   week_num(S, N), seconda_fulltime(M), N != M.
+
+% Introduzione al social media management: idem
+:- lezione(introduzione_social_media_management, S, _, _, _, _, 1, _),
+   week_num(S, N), seconda_fulltime(M), N != M.
+
 #show lezione/8.
