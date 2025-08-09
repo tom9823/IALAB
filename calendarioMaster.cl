@@ -254,6 +254,13 @@ H { lezione(I,S,G,D,O,0,P,U)
   } H
   :- insegnamento(I), ore_per_insegnamento(I,H).
 
+ore_giorno_per_insegnamento(I,S,G,N) :-
+  insegnamento(I), giorno_disponibile(S,G),
+  N = #count { D,O,P,U : lezione(I,S,G,D,O,0,P,U) }.
+
+% Ammontare giornaliero ammesso: 0 oppure 2..4 lezioni (ore)
+:- ore_giorno_per_insegnamento(I,S,G,1).
+:- ore_giorno_per_insegnamento(I,S,G,N), N > 4.
 
 % ogni corso ha esattamente una “prima” lezione
 1 { lezione(I,S,G,D,O,0,1,0) 
@@ -386,5 +393,31 @@ seconda_fulltime(16).
 % Introduzione al social media management: idem
 :- lezione(introduzione_social_media_management, S, _, _, _, _, 1, _),
    week_num(S, N), seconda_fulltime(M), N != M.
+
+lezione(tecnologie_server_side_web,settimana15,sabato,damiano,1,0,1,0).
+lezione(tecnologie_server_side_web,settimana15,sabato,damiano,2,0,0,0).
+lezione(tecnologie_server_side_web,settimana15,sabato,damiano,3,0,0,0).
+lezione(tecnologie_server_side_web,settimana15,sabato,damiano,4,0,0,0).
+
+lezione(tecnologie_server_side_web,settimana16,sabato,damiano,1,0,0,0).
+lezione(tecnologie_server_side_web,settimana16,sabato,damiano,2,0,0,0).
+lezione(tecnologie_server_side_web,settimana16,sabato,damiano,3,0,0,0).
+lezione(tecnologie_server_side_web,settimana16,sabato,damiano,4,0,0,0).
+
+lezione(tecnologie_server_side_web,settimana17,sabato,damiano,1,0,0,0).
+lezione(tecnologie_server_side_web,settimana17,sabato,damiano,2,0,0,0).
+lezione(tecnologie_server_side_web,settimana17,sabato,damiano,3,0,0,0).
+lezione(tecnologie_server_side_web,settimana17,sabato,damiano,4,0,0,0).
+
+lezione(tecnologie_server_side_web,settimana18,sabato,damiano,1,0,0,0).
+lezione(tecnologie_server_side_web,settimana18,sabato,damiano,2,0,0,0).
+lezione(tecnologie_server_side_web,settimana18,sabato,damiano,3,0,0,0).
+lezione(tecnologie_server_side_web,settimana18,sabato,damiano,4,0,0,0).
+
+lezione(tecnologie_server_side_web,settimana19,sabato,damiano,1,0,0,0).
+lezione(tecnologie_server_side_web,settimana19,sabato,damiano,2,0,0,0).
+lezione(tecnologie_server_side_web,settimana19,sabato,damiano,3,0,0,0).
+lezione(tecnologie_server_side_web,settimana19,sabato,damiano,4,0,0,1).
+
 
 #show lezione/8.
