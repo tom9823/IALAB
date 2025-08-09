@@ -52,7 +52,9 @@ prereq(elementi_fotografia_digitale, acquisizione_elaborazione_sequenze_immagini
 prereq(acquisizione_elaborazione_immagini_statiche_grafica, grafica_3d).
 
 
+
 % Insegnamenti, docenti e ore
+
 
 % Project Management
 insegnamento(project_management).
@@ -256,6 +258,7 @@ H { lezione(I,S,G,D,O,0,P,U)
 % ogni corso ha esattamente una “prima” lezione
 1 { lezione(I,S,G,D,O,0,1,0) 
     : slot_ammissibile(S,G,O),
+
       insegna(D,I),
       slot(O)
   } 1 
@@ -264,6 +267,7 @@ H { lezione(I,S,G,D,O,0,P,U)
 % ogni corso ha esattamente una “ultima” lezione
 1 { lezione(I,S,G,D,O,0,0,1) 
     : slot_ammissibile(S,G,O),
+
       insegna(D,I),
       slot(O)
   } 1 
@@ -300,6 +304,7 @@ lezione(presentazione_master, settimana1, venerdi, presentatore, 2, 0, 0, 1).
 % Vincolo: massimo 4 ore (normali o recupero) per docente D in ciascuna (S,G)
 0 { lezione(I, S, G, D, O, Rec, P, U)
   : slot_ammissibile(S,G,O),
+
     insegna(D, I),
     slot(O),
     recupero(Rec),
@@ -318,10 +323,10 @@ lezione(presentazione_master, settimana1, venerdi, presentatore, 2, 0, 0, 1).
   :- settimana(S), slot_ammissibile(S,G,O).
 
 
-% Integrity constraint: Project Management deve concludersi entro la settimana 9
+% Integrity constraint: Project Management deve concludersi entro la settimana 7
 :- lezione(project_management, S, G, D, O, Rec, P, U),
    week_num(S, W),
-   W > 9.
+   W > 7.
 
 
 % vincolo per settimane diverse usando week_num
@@ -372,9 +377,9 @@ lezione(presentazione_master, settimana1, venerdi, presentatore, 2, 0, 0, 1).
    O1 >= O2.
 
 % seconda settimana full-time
-seconda_fulltime(10).
+seconda_fulltime(16).
 
-% Crossmedia: la prima lezione deve stare nella settimana 10
+% Crossmedia: la prima lezione deve stare nella settimana 16
 :- lezione(crossmedia_articolazione_scritture_multimediali, S, _, _, _, _, 1, _),
    week_num(S, N), seconda_fulltime(M), N != M.
 
