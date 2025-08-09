@@ -52,10 +52,6 @@ prereq(elementi_fotografia_digitale, acquisizione_elaborazione_sequenze_immagini
 prereq(acquisizione_elaborazione_immagini_statiche_grafica, grafica_3d).
 
 
-
-% Insegnamenti, docenti e ore
-
-
 % Project Management
 insegnamento(project_management).
 docente(muzzetto).
@@ -252,7 +248,7 @@ H { lezione(I,S,G,D,O,0,P,U)
       slot_ammissibile(S,G,O),
       prima_lezione(P), ultima_lezione(U)
   } H
-  :- insegnamento(I), ore_per_insegnamento(I,H).
+  :- insegnamento(I), ore_per_insegnamento(I,H), I != tecnologie_server_side_web.
 
 ore_giorno_per_insegnamento(I,S,G,N) :-
   insegnamento(I), giorno_disponibile(S,G),
@@ -311,7 +307,6 @@ lezione(presentazione_master, settimana1, venerdi, presentatore, 2, 0, 0, 1).
 % Vincolo: massimo 4 ore (normali o recupero) per docente D in ciascuna (S,G)
 0 { lezione(I, S, G, D, O, Rec, P, U)
   : slot_ammissibile(S,G,O),
-
     insegna(D, I),
     slot(O),
     recupero(Rec),
