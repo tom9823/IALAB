@@ -232,43 +232,63 @@ giorno_disponibile(settimana16,G) :- giorno(G), G != venerdi, G != sabato.
 cap_giorno(sabato, 6).
 cap_giorno(G, 8) :- giorno(G), G != sabato.
 
+
 % slot ammessi dato (settimana, giorno)
 slot_ammissibile(S,G,O) :-
   giorno_disponibile(S,G),
   cap_giorno(G,Cap),
   slot(O), O <= Cap.
 
-recupero(0..1).
 prima_lezione(0..1).
 ultima_lezione(0..1).
 
 % Generazione lezioni (solo sugli slot ammessi)
-H { lezione(I,S,G,D,O,0,P,U)
+H { lezione(I,S,G,D,O,P,U)
     : insegna(D,I),
       slot_ammissibile(S,G,O),
       prima_lezione(P), ultima_lezione(U)
   } H
-  :- insegnamento(I), ore_per_insegnamento(I,H), I != tecnologie_server_side_web.
+  :- insegnamento(I), ore_per_insegnamento(I,H), I != presentazione_master,
+     I != tecnologie_server_side_web.
 
-ore_giorno_per_insegnamento(I,S,G,N) :-
+% Ore giornaliere per corso — lezioni normali 
+ore_lezione_giorno_per_insegnamento(I,S,G,N) :-
   insegnamento(I), giorno_disponibile(S,G),
-  N = #count { D,O,P,U : lezione(I,S,G,D,O,0,P,U) }.
+  N = #count { O : lezione(I,S,G,_,O,_,_) }.
 
-% Ammontare giornaliero ammesso: 0 oppure 2..4 lezioni (ore)
+% Ore giornaliere per corso — recuperi start
+ore_rec_start_giorno_per_insegnamento(I,S,G,N) :-
+  insegnamento(I), giorno_disponibile(S,G),
+  N = #count { O : rec_start(I,S,G,_,O) }.
+
+% Ore giornaliere per corso — recuperi end
+ore_rec_end_giorno_per_insegnamento(I,S,G,N) :-
+  insegnamento(I), giorno_disponibile(S,G),
+  N = #count { O : rec_end(I,S,G,_,O) }.
+
+% Somma totale ore (lezioni normali + recuperi start + recuperi end)
+ore_giorno_per_insegnamento(I,S,G,N) :-
+  ore_lezione_giorno_per_insegnamento(I,S,G,N1),
+  ore_rec_start_giorno_per_insegnamento(I,S,G,N2),
+  ore_rec_end_giorno_per_insegnamento(I,S,G,N3),
+  N = N1 + N2 + N3.
+
+% Ammontare giornaliero ammesso per ciascun corso:
+%  - vietato 1
+%  - vietato >4
 :- ore_giorno_per_insegnamento(I,S,G,1).
 :- ore_giorno_per_insegnamento(I,S,G,N), N > 4.
 
 % ogni corso ha esattamente una “prima” lezione
-1 { lezione(I,S,G,D,O,0,1,0) 
+1 { lezione(I,S,G,D,O,1,0) 
     : slot_ammissibile(S,G,O),
-
       insegna(D,I),
       slot(O)
   } 1 
   :- insegnamento(I).
 
 % ogni corso ha esattamente una “ultima” lezione
-1 { lezione(I,S,G,D,O,0,0,1) 
+1 { lezione(I,S,G,D,O,0,1) 
     : slot_ammissibile(S,G,O),
 
       insegna(D,I),
@@ -277,86 +297,64 @@ ore_giorno_per_insegnamento(I,S,G,N) :-
   :- insegnamento(I).
 
 % non può esserci una lezione marcata sia come “prima” che come “ultima” se si ha più di un'ora di insegnamento per quel corso
-:- lezione(I, S, G, D, O, Rec, 1, 1), ore_per_insegnamento(I,H), H != 1.
+:- lezione(I, S, G, D, O,  1, 1), ore_per_insegnamento(I,H), H != 1.
 
 % First lesson: nessuna lezione in settimana minore
-:- lezione(C,S1,_,_,O1,_,1,_), lezione(C,S2,_,_,O2,_,_,_), week_num(S2,N2), week_num(S1,N1), N2 < N1.
+:- lezione(C,S1,_,_,O1,1,_), lezione(C,S2,_,_,O2,_,_), week_num(S2,N2), week_num(S1,N1), N2 < N1.
 
 % First lesson: nessuna lezione in stesso S ma giorno minore
-:- lezione(C,S,G1,_,O1,_,1,_), lezione(C,S,G2,_,O2,_,_,_), daynum(G2,D2), daynum(G1,D1), D2 < D1.
+:- lezione(C,S,G1,_,O1,1,_), lezione(C,S,G2,_,O2,_,_), daynum(G2,D2), daynum(G1,D1), D2 < D1.
 
 % First lesson: nessuna lezione in stesso S,G ma slot minore
-:- lezione(C,S,G,_,O1,_,1,_), lezione(C,S,G,_,O2,_,_,_), O2 < O1.
+:- lezione(C,S,G,_,O1,1,_), lezione(C,S,G,_,O2,_,_), O2 < O1.
 
 
 % Last lesson: nessuna lezione in settimana maggiore
-:- lezione(C,S1,_,_,O1,_,_,1), lezione(C,S2,_,_,O2,_,_,_), week_num(S2,N2), week_num(S1,N1), N2 > N1.
+:- lezione(C,S1,_,_,O1,_,1), lezione(C,S2,_,_,O2,_,_), week_num(S2,N2), week_num(S1,N1), N2 > N1.
 
 % Last lesson: nessuna lezione in stesso S ma giorno maggiore
-:- lezione(C,S,G1,_,O1,_,_,1), lezione(C,S,G2,_,O2,_,_,_), daynum(G2,D2), daynum(G1,D1), D2 > D1.
+:- lezione(C,S,G1,_,O1,_,1), lezione(C,S,G2,_,O2,_,_), daynum(G2,D2), daynum(G1,D1), D2 > D1.
 
 % Last lesson: nessuna lezione in stesso S,G ma slot maggiore
-:- lezione(C,S,G,_,O1,_,_,1), lezione(C,S,G,_,O2,_,_,_), O2 > O1.
+:- lezione(C,S,G,_,O1,_,1), lezione(C,S,G,_,O2,_,_), O2 > O1.
 
 
 % presentazione master
-lezione(presentazione_master, settimana1, venerdi, presentatore, 1, 0, 1, 0).
-lezione(presentazione_master, settimana1, venerdi, presentatore, 2, 0, 0, 1).
-
-
-% Vincolo: massimo 4 ore (normali o recupero) per docente D in ciascuna (S,G)
-0 { lezione(I, S, G, D, O, Rec, P, U)
-  : slot_ammissibile(S,G,O),
-    insegna(D, I),
-    slot(O),
-    recupero(Rec),
-    prima_lezione(P),
-    ultima_lezione(U)
-} 4
-  :- docente(D), giorno_disponibile(S, G).
-
-% al massimo una lezione per docente D in ciascuna (settimana S, giorno G, slot O)
-0 { lezione(I, S, G, D, O, Rec, P, U)
-  : insegna(D, I),
-    recupero(Rec),
-    prima_lezione(P),
-    ultima_lezione(U)
-} 1
-  :- settimana(S), slot_ammissibile(S,G,O).
-
+lezione(presentazione_master, settimana1, venerdi, presentatore, 1, 1, 0).
+lezione(presentazione_master, settimana1, venerdi, presentatore, 2, 0, 1).
 
 % Integrity constraint: Project Management deve concludersi entro la settimana 7
-:- lezione(project_management, S, G, D, O, Rec, P, U),
+:- lezione(project_management, S, G, D, O, P, U),
    week_num(S, W),
    W > 7.
 
 
 % vincolo per settimane diverse usando week_num
 :- prereq(P,C),
-   lezione(P, WS1, _, _, _, _, _, _),
-   lezione(C, WS2, _, _, _, _, _, _),
+   lezione(P, WS1, _, _, _,  _, _),
+   lezione(C, WS2, _, _, _,  _, _),
    week_num(WS1, N1),
    week_num(WS2, N2),
    N1 > N2.
 
 % vincolo per stessa settimana, ordinamento per giorno
 :- prereq(P,C),
-   lezione(P, W, Gp, _, _, _, _, _),
-   lezione(C, W, Gc, _, _, _, _, _),
+   lezione(P, W, Gp, _,  _, _, _),
+   lezione(C, W, Gc, _, _, _, _),
    daynum(Gp, Dp),
    daynum(Gc, Dc),
    Dp > Dc.
 
 % vincolo per stesso giorno, ordinamento per slot
 :- prereq(P,C),
-   lezione(P, W, G, Tp, _, _, _, _),
-   lezione(C, W, G, Tc, _, _, _, _),
+   lezione(P, W, G, Tp, _, _, _),
+   lezione(C, W, G, Tc, _, _, _),
    Tp >= Tc.
 
 
 % La distanza tra prima e ultima lezione dell’insegnamento I non supera 8 settimane
-:- lezione(I,S1,_,_,_,_,1,0),
-   lezione(I,S2,_,_,_,_,0,1),
+:- lezione(I,S1,_,_,_,1,0),
+   lezione(I,S2,_,_,_,0,1),
    week_num(S1,N1),
    week_num(S2,N2),
    N2 - N1 > 8.
@@ -364,55 +362,117 @@ lezione(presentazione_master, settimana1, venerdi, presentatore, 2, 0, 0, 1).
 % La prima lezione di A&U deve essere prima dell'ULTIMA di Linguaggi di markup
 
 % (1) settimana: vietato se la prima di A&U è in una settimana successiva all’ultima di LM
-:- lezione(accessibilita_usabilita_progettazione_multimediale, S1, _, _, O1, _, 1, _),
-   lezione(linguaggi_markup,S2, _, _, O2, _, _, 1),
+:- lezione(accessibilita_usabilita_progettazione_multimediale, S1, _, _, O1, 1, _),
+   lezione(linguaggi_markup,S2, _, _, O2, _, 1),
    week_num(S1, N1), week_num(S2, N2), N1 > N2.
 
 % (2) stesso S, giorno: vietato se la prima di A&U è in un giorno successivo all’ultima di LM
-:- lezione(accessibilita_usabilita_progettazione_multimediale, S, G1, _, O1, _, 1, _),
-   lezione(linguaggi_markup, S, G2, _, O2, _, _, 1),
+:- lezione(accessibilita_usabilita_progettazione_multimediale, S, G1, _, O1,  1, _),
+   lezione(linguaggi_markup, S, G2, _, O2,  _, 1),
    daynum(G1, D1), daynum(G2, D2), D1 > D2.
 
 % (3) stesso S e G, slot: vietato se la prima di A&U non è strettamente prima dell’ultima di LM
-:- lezione(accessibilita_usabilita_progettazione_multimediale, S, G, _, O1, _, 1, _),
-   lezione(linguaggi_markup, S, G, _, O2, _, _, 1),
+:- lezione(accessibilita_usabilita_progettazione_multimediale, S, G, _, O1,  1, _),
+   lezione(linguaggi_markup, S, G, _, O2, _, 1),
    O1 >= O2.
 
 % seconda settimana full-time
 seconda_fulltime(16).
 
 % Crossmedia: la prima lezione deve stare nella settimana 16
-:- lezione(crossmedia_articolazione_scritture_multimediali, S, _, _, _, _, 1, _),
+:- lezione(crossmedia_articolazione_scritture_multimediali, S, _, _, _, 1, _),
    week_num(S, N), seconda_fulltime(M), N != M.
 
 % Introduzione al social media management: idem
-:- lezione(introduzione_social_media_management, S, _, _, _, _, 1, _),
+:- lezione(introduzione_social_media_management, S, _, _, _,  1, _),
    week_num(S, N), seconda_fulltime(M), N != M.
 
-lezione(tecnologie_server_side_web,settimana15,sabato,damiano,1,0,1,0).
-lezione(tecnologie_server_side_web,settimana15,sabato,damiano,2,0,0,0).
-lezione(tecnologie_server_side_web,settimana15,sabato,damiano,3,0,0,0).
-lezione(tecnologie_server_side_web,settimana15,sabato,damiano,4,0,0,0).
+lezione(tecnologie_server_side_web,settimana15,sabato,damiano,1,1,0).
+lezione(tecnologie_server_side_web,settimana15,sabato,damiano,2,0,0).
+lezione(tecnologie_server_side_web,settimana15,sabato,damiano,3,0,0).
+lezione(tecnologie_server_side_web,settimana15,sabato,damiano,4,0,0).
 
-lezione(tecnologie_server_side_web,settimana16,sabato,damiano,1,0,0,0).
-lezione(tecnologie_server_side_web,settimana16,sabato,damiano,2,0,0,0).
-lezione(tecnologie_server_side_web,settimana16,sabato,damiano,3,0,0,0).
-lezione(tecnologie_server_side_web,settimana16,sabato,damiano,4,0,0,0).
+lezione(tecnologie_server_side_web,settimana16,sabato,damiano,1,0,0).
+lezione(tecnologie_server_side_web,settimana16,sabato,damiano,2,0,0).
+lezione(tecnologie_server_side_web,settimana16,sabato,damiano,3,0,0).
+lezione(tecnologie_server_side_web,settimana16,sabato,damiano,4,0,0).
 
-lezione(tecnologie_server_side_web,settimana17,sabato,damiano,1,0,0,0).
-lezione(tecnologie_server_side_web,settimana17,sabato,damiano,2,0,0,0).
-lezione(tecnologie_server_side_web,settimana17,sabato,damiano,3,0,0,0).
-lezione(tecnologie_server_side_web,settimana17,sabato,damiano,4,0,0,0).
+lezione(tecnologie_server_side_web,settimana17,sabato,damiano,1,0,0).
+lezione(tecnologie_server_side_web,settimana17,sabato,damiano,2,0,0).
+lezione(tecnologie_server_side_web,settimana17,sabato,damiano,3,0,0).
+lezione(tecnologie_server_side_web,settimana17,sabato,damiano,4,0,0).
 
-lezione(tecnologie_server_side_web,settimana18,sabato,damiano,1,0,0,0).
-lezione(tecnologie_server_side_web,settimana18,sabato,damiano,2,0,0,0).
-lezione(tecnologie_server_side_web,settimana18,sabato,damiano,3,0,0,0).
-lezione(tecnologie_server_side_web,settimana18,sabato,damiano,4,0,0,0).
+lezione(tecnologie_server_side_web,settimana18,sabato,damiano,1,0,0).
+lezione(tecnologie_server_side_web,settimana18,sabato,damiano,2,0,0).
+lezione(tecnologie_server_side_web,settimana18,sabato,damiano,3,0,0).
+lezione(tecnologie_server_side_web,settimana18,sabato,damiano,4,0,0).
 
-lezione(tecnologie_server_side_web,settimana19,sabato,damiano,1,0,0,0).
-lezione(tecnologie_server_side_web,settimana19,sabato,damiano,2,0,0,0).
-lezione(tecnologie_server_side_web,settimana19,sabato,damiano,3,0,0,0).
-lezione(tecnologie_server_side_web,settimana19,sabato,damiano,4,0,0,1).
+lezione(tecnologie_server_side_web,settimana19,sabato,damiano,1,0,0).
+lezione(tecnologie_server_side_web,settimana19,sabato,damiano,2,0,0).
+lezione(tecnologie_server_side_web,settimana19,sabato,damiano,3,0,0).
+lezione(tecnologie_server_side_web,settimana19,sabato,damiano,4,0,1).
 
 
-#show lezione/8.
+% -------------------------------------------------------
+% SLOT SUCCESSIVO (stesso S,G, O+1 ammesso)
+% -------------------------------------------------------
+next_slot(S,G,O,O1) :-
+    slot_ammissibile(S,G,O),
+    O1 = O + 1,
+    slot_ammissibile(S,G,O1).
+
+% -------------------------------------------------------
+% RECUPERI: GENERA ESATTAMENTE 3 "START" (Rec=1,P=1,U=0)
+% solo su slot non usati da lezioni normali
+% -------------------------------------------------------
+3 { rec_start(I,S,G,D,O)
+    : insegnamento(I),
+      insegna(D,I),
+      slot_ammissibile(S,G,O),
+      not lezione(_,S,G,_,O,_,_)    % evita slot occupati
+  } 3 :- insegnamento(I).
+
+
+% -------------------------------------------------------
+% AUTO-FINALE: per ogni start crea il "finale" (Rec=1,P=0,U=1) nello slot successivo
+% -------------------------------------------------------
+% deve esistere lo slot successivo
+:- rec_start(I,S,G,D,O), not next_slot(S,G,O,_).
+
+% lo slot successivo non deve essere occupato da lezioni normali
+:- rec_start(I,S,G,D,O), next_slot(S,G,O,O1), lezione(_,S,G,_,O1,_,_).
+
+% genera il "finale" automaticamente
+rec_end(I,S,G,D,O1) :-
+    rec_start(I,S,G,D,O),
+    next_slot(S,G,O,O1).
+
+% -------------------------------------------------------
+% CARDINALITÀ “3 e 3”: esattamente 3 start e 3 finali per ogni corso con recupero
+% -------------------------------------------------------
+:- insegnamento(I),
+   3 != #count { S,G,D,O : rec_start(I,S,G,D,O) }.
+
+:- insegnamento(I),
+   3 != #count { S,G,D,O : rec_end(I,S,G,D,O) }.
+
+% ============================
+% Max 4 ore per docente al giorno (lezioni + recuperi)
+% ============================
+:- docente(D), settimana(S), giorno_disponibile(S,G),
+   5 { lezione(_,S,G,D,O,_,_) : slot_ammissibile(S,G,O);
+       rec_start(_,S,G,D,O)     : slot_ammissibile(S,G,O);
+       rec_end(_,S,G,D,O)       : slot_ammissibile(S,G,O) }.
+
+% ===================================================
+% Al massimo UNA attività per docente nello stesso slot
+% (vale per lezione normale e per recuperi start/end)
+% ===================================================
+:- docente(D), settimana(S), giorno_disponibile(S,G), slot_ammissibile(S,G,O),
+   2 { lezione(_,S,G,D,O,_,_);
+       rec_start(_,S,G,D,O);
+       rec_end(_,S,G,D,O) }.
+
+#show lezione/7.
+#show rec_start/5.
+#show rec_end/5.
