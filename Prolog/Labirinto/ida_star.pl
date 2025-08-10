@@ -22,3 +22,6 @@ ricerca(S,Visitati,MaxDepth,[Azione|Cammino]):-
     \+member(SNuovo,Visitati),
     NewMax is MaxDepth-1,
     ricerca(SNuovo,[SNuovo|Visitati],NewMax,Cammino).
+
+
+h(pos(Xi,Yi),pos(Xf,Yf), DeltaX, DeltaY):- iniziale(pos(Xi,Yi)), finale(pos(Xf,Yf)), DeltaX is abs(Xi-Xf), DeltaY is abs(Yi-Yf).
