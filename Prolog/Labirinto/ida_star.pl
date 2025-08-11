@@ -6,19 +6,24 @@ initialize :-
     asserta(soglia(H0)),
     asserta(salvati([])).
 
-% 1) prova entro la soglia corrente (bound su f)
+% prova entro la soglia corrente (bound su f)
 ida_star(Cammino) :-
     soglia(Bound),
-    retractall(salvati(_)), asserta(salvati([])),   % azzera i tagli dell’iterazione
-    profondita(Cammino, Bound).                     % se trova, questa clausola ha successo
+    retractall(salvati(_)), asserta(salvati([])),  
+    profondita(Cammino, Bound).                     
 
-% 2) se non ha trovato: nuova soglia = min degli f(n) tagliati
+
+% se non ha trovato: nuova soglia = min degli f(n) tagliati
 ida_star(Cammino) :-
-    salvati(L), L \= [],                            % evita min su lista vuota
+    salvati(L), 
+    L \= [], !,                        
     min(L, NextBound),
     retractall(soglia(_)),
     asserta(soglia(NextBound)),
     ida_star(Cammino).
+
+ida_star(Cammino) :-
+    salvati([]), !, fail.
 
 profondita(Cammino, Bound) :-
     iniziale(S0),
