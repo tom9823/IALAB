@@ -37,14 +37,14 @@ ricerca(S, G, _Visitati, Bound, []) :-
     F =< Bound,
     finale(S), !.
 
-% taglio: f > Bound → salva f(n) e fai backtracking
+% taglio: f > Bound → salva f(n) e backtracking
 ricerca(S, G, _Visitati, Bound, _Cammino) :-
     f(G, S, F),
     F > Bound, !,
     salvati(L0), retract(salvati(L0)), asserta(salvati([F|L0])),
     fail.
 
-% espansione (costi unitari: G1 = G+1), evita cicli sul path
+% espansione, evita cicli sul path
 ricerca(S, G, Visitati, Bound, [Azione|Cammino]) :-
     applicabile(Azione, S),
     trasforma(Azione, S, S1),
