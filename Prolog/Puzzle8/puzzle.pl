@@ -4,14 +4,11 @@ iniziale([
     pos(3,1,8), pos(3,2,2), pos(3,3,4)
 ]).
 
-finale_standard([pos(1,1,1),pos(1,2,2),pos(1,3,3),
-            pos(2,1,4),pos(2,2,5),pos(2,3,6),
-            pos(3,1,7),pos(3,2,8),pos(3,3,-1)]).
-
-finale(S) :- finale_standard(G), subset(G, S).
-subset([], _).
-subset([E|T], S) :- member(E, S), subset(T, S).
-
+finale([
+  pos(1,1,1), pos(1,2,2), pos(1,3,3),
+  pos(2,1,4), pos(2,2,5), pos(2,3,6),
+  pos(3,1,7), pos(3,2,8), pos(3,3,-1)
+]).
 
 f(G, S, F) :- h(S, H), F is G + H.
 
