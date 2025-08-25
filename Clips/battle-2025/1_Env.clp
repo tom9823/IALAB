@@ -188,11 +188,12 @@
 (defrule solve-count-guessed-ok
         (solve)
         (guess ?x ?y)
-        ?c <- (cell (x ?x) (y ?y) (content boat) (status none))
+        ?c <- (cell (x ?x) (y ?y) (content boat|hit-boat) (status none|fired))
         ?st <- (statistics (num_guess_ok ?gok))
 =>
-	(modify ?st (num_guess_ok (+ 1 ?gok)))
-	(modify ?c (content hit-boat) (status guessed))
+  (printout t "ENV --- [ " ?x " ] [ " ?y " ] " crlf)
+  (modify ?st (num_guess_ok (+ 1 ?gok)))
+  (modify ?c (content hit-boat) (status guessed))
 )
 
 (defrule solve-count-guessed-ko 
@@ -239,9 +240,7 @@
 	(statistics (num_fire_ok ?fok) (num_fire_ko ?fko) (num_guess_ok ?gok) (num_guess_ko ?gko) (num_safe ?saf) (num_sink ?sink))
 	(moves (fires ?nf) (guesses ?ng))
 =>
-	(format t "[STAT] fire_ok=%d fire_ko=%d guess_ok=%d guess_ko=%d safe=%d sink=%d | fires_left=%d guesses_left=%d%n"
-          ?fok ?fko ?gok ?gko ?saf ?sink ?nf ?ng)
-  	(printout t "Your score is " (scoring ?fok ?fko ?gok ?gko ?saf ?sink ?nf ?ng) crlf)
+	(printout t "Your score is " (scoring ?fok ?fko ?gok ?gko ?saf ?sink ?nf ?ng) crlf)
 )
 	
 
@@ -324,17 +323,6 @@
 =>
 	(assert (k-cell (x ?x) (y ?y) (content water)))
 	(assert (resetted ?x ?y))
-)
-
-(defrule solve-count-guessed-ok
-        (solve)
-        (guess ?x ?y)
-        ?c <- (cell (x ?x) (y ?y) (content boat|hit-boat) (status none|fired))
-        ?st <- (statistics (num_guess_ok ?gok))
-=>
-  (printout t "ENV --- [ " ?x " ] [ " ?y " ] " crlf)
-  (modify ?st (num_guess_ok (+ 1 ?gok)))
-  (modify ?c (content hit-boat) (status guessed))
 )
 
 
