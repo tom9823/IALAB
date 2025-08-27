@@ -46,11 +46,9 @@
 )
 
 
-(defrule fire-known-sub (declare (salience 59))
+(defrule mark-perimeter-known-sub (declare (salience 59))
   (status (step ?s) (currently running))
-  (moves (fires ?f&:(> ?f 0)))
   (k-cell (x ?x) (y ?y) (content sub))
-  (not (initial-phase-done))
 =>
   (assert (perim-batch
            (cells
@@ -73,9 +71,8 @@
 ;---------------------------------------
 (defrule fire-known-boat-part-top (declare (salience 60))
   (status (step ?s) (currently running))
-  (moves (fires ?f&:(> ?f 0)))
   (k-cell (x ?x) (y ?y) (content top))
-  (not (initial-phase-done))
+  (not (initial-phase-done))  
 =>
   (assert (perim-batch (cells
             (- ?x 1) (- ?y 1)  (+ ?x 1) (- ?y 1)
@@ -92,9 +89,8 @@
 ;---------------------------------------
 (defrule fire-known-boat-part-bot (declare (salience 60))
   (status (step ?s) (currently running))
-  (moves (fires ?f&:(> ?f 0)))
   (k-cell (x ?x) (y ?y) (content bot))
-  (not (initial-phase-done))
+  (not (initial-phase-done))  
 =>
   (assert (perim-batch (cells
             (- ?x 1) (- ?y 1)  (+ ?x 1) (- ?y 1)
@@ -112,9 +108,8 @@
 ;---------------------------------------
 (defrule fire-known-boat-part-middle (declare (salience 60))
   (status (step ?s) (currently running))
-  (moves (fires ?f&:(> ?f 0)))
   (k-cell (x ?x) (y ?y) (content middle))
-  (not (initial-phase-done))
+  (not (initial-phase_done))
 =>
   (assert (perim-batch (cells
             (- ?x 1) (- ?y 1)  (+ ?x 1) (- ?y 1)
@@ -156,6 +151,18 @@
   (retract ?q)
 )
 
+
+(deftemplate cell-point
+  (slot x)
+  (slot y)
+  (slot num))
+
+(defrule build-cell-point-for-guess (declare (salience 90))
+  (k-per-row (row ?x) (num ?px))
+  (k-per-col (col ?y) (num ?py))
+  (not (cell-point (x ?x) (y ?y)))
+  =>
+  (assert (cell-point (x ?x) (y ?y) (num (+ ?px ?py)))))
 
 
 (defrule inerzia0 (declare (salience 10))
