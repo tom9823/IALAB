@@ -110,6 +110,7 @@
 (boat-hor (name sub9) (x 8) (ys 5) (size 1) (status safe))
 (boat-hor (name nav10) (x 9) (ys 7 8 9 ) (size 3) (status safe safe safe ))
 (k-cell (x 1) (y 2) (content water))
+(k-cell (x 7) (y 0) (content water))
 (k-cell (x 4) (y 4) (content sub))
 (k-cell (x 7) (y 2) (content middle))
 (k-per-row (row 0) (num 3))
