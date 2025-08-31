@@ -14,6 +14,17 @@
   (slot y  (type INTEGER) (range 0 9))
   (slot CF (type INTEGER))
 )
+
+; --- Marker per non ripetere il bonus negli step successivi
+(deftemplate exp-above-middle-step-mark
+  (slot sx) (slot sy)   ; sorgente: middle
+  (slot x)  (slot y)    ; target che ha ricevuto il bonus
+)
+(deftemplate exp-below-middle-step-mark
+  (slot sx) (slot sy)
+  (slot x)  (slot y)
+)
+
 ; Marker
 (deftemplate advantage-disadvantage (slot sx) (slot sy) (slot x) (slot y))
 
@@ -374,25 +385,33 @@
 ; (richiede un fatto di stato con lo step corrente)
 ; Esempio di fatto atteso: (status (step 3))
 ; Sopra a middle e step<5 -> 80
+; Sopra a middle e step<5 -> +20
 (defrule exp-above-middle-step
   (declare (salience 4))
   (status (step ?s&:(< ?s 5)))
-  (k-cell (x ?kx) (y ?ky&:(>= ?ky 1)) (content middle))
+  (k-cell (x ?kx&:(>= ?kx 1)) (y ?ky) (content middle))  ; x-1 => x>=1
+  (not (k-cell (x =(- ?kx 1)) (y ?ky)))                  
+  (not (exp-above-middle-step-mark
+         (sx ?kx) (sy ?ky) (x =(- ?kx 1)) (y ?ky)))
 =>
- (assert (cell-cf (x (- ?kx 1)) (y ?ky) (CF 20)))
+  (assert (cell-cf (x (- ?kx 1)) (y ?ky) (CF 20)))
+  (assert (exp-above-middle-step-mark (sx ?kx) (sy ?ky) (x (- ?kx 1)) (y ?ky)))
 )
 
-; Sotto a middle e step<5 -> 80
+; Sotto a middle e step<5 -> +20
 (defrule exp-below-middle-step
   (declare (salience 4))
   (status (step ?s&:(< ?s 5)))
-  (k-cell (x ?kx) (y ?ky&:(<= ?ky 8)) (content middle))
+  (k-cell (x ?kx&:(<= ?kx 8)) (y ?ky) (content middle))  ; x+1 => x<=8
+  (not (k-cell (x =(+ ?kx 1)) (y ?ky)))                 
+  (not (exp-below-middle-step-mark
+         (sx ?kx) (sy ?ky) (x =(+ ?kx 1)) (y ?ky)))
 =>
- (assert (cell-cf (x (+ ?kx 1)) (y ?ky) (CF 20)))
+  (assert (cell-cf (x (+ ?kx 1)) (y ?ky) (CF 20)))
+  (assert (exp-below-middle-step-mark (sx ?kx) (sy ?ky) (x (+ ?kx 1)) (y ?ky)))
 )
 
-
-; ROW: acqua → +1
+; ROW: acqua → +8
 (defrule bump-row-from-water
   (declare (salience 3))
   (or (k-cell (x ?x) (y ?y1) (content water))
@@ -401,11 +420,11 @@
   (not (k-cell (x ?x) (y ?y2)))  ; non toccare celle note
   (not (advantage-disadvantage (sx ?x) (sy ?y1) (x ?x) (y ?y2)))
 =>
-  (assert (cell-cf (x ?x) (y ?y2) (CF 1)))
+  (assert (cell-cf (x ?x) (y ?y2) (CF 5)))
   (assert (advantage-disadvantage (sx ?x) (sy ?y1) (x ?x) (y ?y2)))
 )
  
-; ROW: pezzo barca → −1
+; ROW: pezzo barca → −5
 (defrule bump-row-from-boat
   (declare (salience 3))
   (or (k-cell (x ?x) (y ?y1) (content ~water))
@@ -415,8 +434,34 @@
   (not (k-cell (x ?x) (y ?y2)))
   (not (advantage-disadvantage (sx ?x) (sy ?y1) (x ?x) (y ?y2)))     
 =>
-  (assert (cell-cf (x ?x) (y ?y2) (CF -1)))
+  (assert (cell-cf (x ?x) (y ?y2) (CF -5)))
   (assert (advantage-disadvantage (sx ?x) (sy ?y1) (x ?x) (y ?y2)))
+)
+; COL: acqua → +5
+(defrule bump-col-from-water
+  (declare (salience 3))
+  (or (k-cell (x ?x1) (y ?y) (content water))
+      (cell-cf (x ?x1) (y ?y) (CF 0)))
+  (cell-cf (x ?x2&:(<> ?x2 ?x1)) (y ?y) (CF ?c2))
+  (not (k-cell (x ?x2) (y ?y)))  ; non toccare celle note
+  (not (advantage-disadvantage (sx ?x1) (sy ?y) (x ?x2) (y ?y)))
+=>
+  (assert (cell-cf (x ?x2) (y ?y) (CF 5)))
+  (assert (advantage-disadvantage (sx ?x1) (sy ?y) (x ?x2) (y ?y)))
+)
+
+; COL: pezzo barca → −5
+(defrule bump-col-from-boat
+  (declare (salience 3))
+  (or (k-cell (x ?x1) (y ?y) (content ~water))
+      (and (cell-cf (x ?x1) (y ?y) (CF 100))
+           (not (k-cell (x ?x1) (y ?y)))))
+  (cell-cf (x ?x2&:(<> ?x2 ?x1)) (y ?y) (CF ?c2))
+  (not (k-cell (x ?x2) (y ?y)))
+  (not (advantage-disadvantage (sx ?x1) (sy ?y) (x ?x2) (y ?y)))
+=>
+  (assert (cell-cf (x ?x2) (y ?y) (CF -5)))
+  (assert (advantage-disadvantage (sx ?x1) (sy ?y) (x ?x2) (y ?y)))
 )
 
 (defrule seed-best
@@ -428,6 +473,8 @@
 =>
   (assert (cf-best (x ?x) (y ?y) (CF ?c)))
 )
+
+
 
 (defrule improve-best
   (declare (salience 2))
