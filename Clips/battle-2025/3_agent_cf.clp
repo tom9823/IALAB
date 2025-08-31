@@ -411,7 +411,7 @@
   (assert (exp-below-middle-step-mark (sx ?kx) (sy ?ky) (x (+ ?kx 1)) (y ?ky)))
 )
 
-; ROW: acqua → +8
+; ROW: acqua → +1
 (defrule bump-row-from-water
   (declare (salience 3))
   (or (k-cell (x ?x) (y ?y1) (content water))
@@ -420,7 +420,7 @@
   (not (k-cell (x ?x) (y ?y2)))  ; non toccare celle note
   (not (advantage-disadvantage (sx ?x) (sy ?y1) (x ?x) (y ?y2)))
 =>
-  (assert (cell-cf (x ?x) (y ?y2) (CF 5)))
+  (assert (cell-cf (x ?x) (y ?y2) (CF 1)))
   (assert (advantage-disadvantage (sx ?x) (sy ?y1) (x ?x) (y ?y2)))
 )
  
@@ -437,7 +437,7 @@
   (assert (cell-cf (x ?x) (y ?y2) (CF -5)))
   (assert (advantage-disadvantage (sx ?x) (sy ?y1) (x ?x) (y ?y2)))
 )
-; COL: acqua → +5
+; COL: acqua → +1
 (defrule bump-col-from-water
   (declare (salience 3))
   (or (k-cell (x ?x1) (y ?y) (content water))
@@ -446,7 +446,7 @@
   (not (k-cell (x ?x2) (y ?y)))  ; non toccare celle note
   (not (advantage-disadvantage (sx ?x1) (sy ?y) (x ?x2) (y ?y)))
 =>
-  (assert (cell-cf (x ?x2) (y ?y) (CF 5)))
+  (assert (cell-cf (x ?x2) (y ?y) (CF 1)))
   (assert (advantage-disadvantage (sx ?x1) (sy ?y) (x ?x2) (y ?y)))
 )
 
