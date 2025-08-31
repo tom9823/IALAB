@@ -5,12 +5,13 @@
 
 
 (deftemplate cell-cf
-  (slot x)
-  (slot y)
+  (slot x  (type INTEGER) (range 0 9))
+  (slot y  (type INTEGER) (range 0 9))
   (slot CF (type INTEGER))
 )
 (deftemplate cf-best
-  (slot x) (slot y)
+  (slot x  (type INTEGER) (range 0 9))
+  (slot y  (type INTEGER) (range 0 9))
   (slot CF (type INTEGER))
 )
 ; Marker
@@ -19,7 +20,7 @@
 ; ---------------------------------------------
 ; EVIDENCE CF = 0
 ; ---------------------------------------------
-; -- Diagonale di un pezzo di barca: 8 celle attorno a (k-cell ... ~sub&~water)
+; -- Diagonale di un pezzo di barca (k-cell ... ~sub&~water)
 
 (defrule zero-diag-se-of-boat (declare (salience 10))
   (k-cell (x ?cx&:(<= ?cx 8)) (y ?cy&:(<= ?cy 8)) (content ?c&~sub&~water))
@@ -28,13 +29,13 @@
 )
 
 (defrule zero-diag-sw-of-boat (declare (salience 10))
-  (k-cell (x ?cx&:(>= ?cx 1)) (y ?cy&:(<= ?cy 8)) (content ?c&~sub&~water))
+  (k-cell (x ?cx&:(<= ?cx 8)) (y ?cy&:(>= ?cy 1)) (content ?c&~sub&~water))
 =>
   (assert (cell-cf (x (+ ?cx 1)) (y (- ?cy 1)) (CF 0)))
 )
 
 (defrule zero-diag-ne-of-boat (declare (salience 10))
-  (k-cell (x ?cx&:(<= ?cx 8)) (y ?cy&:(>= ?cy 1)) (content ?c&~sub&~water))
+  (k-cell (x ?cx&:(>= ?cx 1)) (y ?cy&:(>= ?cy 1)) (content ?c&~sub&~water))
 =>
   (assert (cell-cf (x (- ?cx 1)) (y (+ ?cy 1)) (CF 0)))
 )
@@ -44,7 +45,73 @@
 =>
   (assert (cell-cf (x (- ?cx 1)) (y (- ?cy 1)) (CF 0)))
 )
+; -- Nord, est, ovest di un top
 
+(defrule zero-perim-top-w (declare (salience 10))
+  (k-cell (x ?sx) (y ?sy&:(>= ?sy 1)) (content top))
+=>
+  (assert (cell-cf (x ?sx) (y (- ?sy 1)) (CF 0)))
+)
+; E (x, y+1)
+(defrule zero-perim-top-e (declare (salience 10))
+  (k-cell (x ?sx) (y ?sy&:(<= ?sy 8)) (content top))
+=>
+  (assert (cell-cf (x ?sx) (y (+ ?sy 1)) (CF 0)))
+)
+(defrule zero-perim-top-n (declare (salience 10))
+  (k-cell (x ?sx&:(>= ?sx 1)) (y ?sy) (content top))
+=>
+  (assert (cell-cf (x (- ?sx 1)) (y ?sy) (CF 0)))
+)
+; -- Sud, est, ovest di un bot
+(defrule zero-perim-bot-w (declare (salience 10))
+  (k-cell (x ?sx) (y ?sy&:(>= ?sy 1)) (content bot))
+=>
+  (assert (cell-cf (x ?sx) (y (- ?sy 1)) (CF 0)))
+)
+; E (x, y+1)
+(defrule zero-perim-bot-e (declare (salience 10))
+  (k-cell (x ?sx) (y ?sy&:(<= ?sy 8)) (content bot))
+=>
+  (assert (cell-cf (x ?sx) (y (+ ?sy 1)) (CF 0)))
+)
+(defrule zero-perim-bot-s (declare (salience 10))
+  (k-cell (x ?sx&:(<= ?sx 8)) (y ?sy) (content bot))
+=> 
+  (assert (cell-cf (x (+ ?sx 1)) (y ?sy) (CF 0)))
+)
+; -- ovest, sud, nord di un left
+(defrule zero-perim-left-w (declare (salience 10))
+  (k-cell (x ?sx) (y ?sy&:(>= ?sy 1)) (content left))
+=>
+  (assert (cell-cf (x ?sx) (y (- ?sy 1)) (CF 0)))
+)
+(defrule zero-perim-left-s (declare (salience 10))
+  (k-cell (x ?sx&:(<= ?sx 8)) (y ?sy) (content left))
+=> 
+  (assert (cell-cf (x (+ ?sx 1)) (y ?sy) (CF 0)))
+)
+(defrule zero-perim-left-n (declare (salience 10))
+  (k-cell (x ?sx&:(>= ?sx 1)) (y ?sy) (content left))
+=>
+  (assert (cell-cf (x (- ?sx 1)) (y ?sy) (CF 0)))
+)
+; -- est, nord, sud di un right
+(defrule zero-perim-right-e (declare (salience 10))
+  (k-cell (x ?sx) (y ?sy&:(<= ?sy 8)) (content right))
+=>
+  (assert (cell-cf (x ?sx) (y (+ ?sy 1)) (CF 0)))
+)
+(defrule zero-perim-right-s (declare (salience 10))
+  (k-cell (x ?sx&:(<= ?sx 8)) (y ?sy) (content right))
+=> 
+  (assert (cell-cf (x (+ ?sx 1)) (y ?sy) (CF 0)))
+)
+(defrule zero-perim-right-n (declare (salience 10))
+  (k-cell (x ?sx&:(>= ?sx 1)) (y ?sy) (content right))
+=>
+  (assert (cell-cf (x (- ?sx 1)) (y ?sy) (CF 0)))
+)
 ; -- Diagonale di un k-cell con CF 100
 
 (defrule zero-diag-se-of-cf100 (declare (salience 10))
@@ -54,14 +121,14 @@
 )
 
 (defrule zero-diag-sw-of-cf100 (declare (salience 10))
-  (cell-cf (x ?cx&:(>= ?cx 1)) (y ?cy&:(<= ?cy 8)) (CF 100))
-=>
+  (cell-cf (x ?cx&:(<= ?cx 8)) (y ?cy&:(>= ?cy 1)) (CF 100))
+=> 
   (assert (cell-cf (x (+ ?cx 1)) (y (- ?cy 1)) (CF 0)))
 )
 
 (defrule zero-diag-ne-of-cf100 (declare (salience 10))
-  (cell-cf (x ?cx&:(<= ?cx 8)) (y ?cy&:(>= ?cy 1)) (CF 100))
-=>
+  (cell-cf (x ?cx&:(>= ?cx 1)) (y ?cy&:(<= ?cy 8)) (CF 100))
+=> 
   (assert (cell-cf (x (- ?cx 1)) (y (+ ?cy 1)) (CF 0)))
 )
 
@@ -251,60 +318,57 @@
   (assert (cell-cf (x ?kx) (y (- ?ky 1)) (CF 50)))
 )
 
-(defrule exp-right-middle
-  (declare (salience 4))
+(defrule exp-right-middle (declare (salience 4))
   (k-cell (x ?kx) (y ?ky&:(<= ?ky 8)) (content middle))
 =>
   (assert (cell-cf (x ?kx) (y (+ ?ky 1)) (CF 50)))
 )
 
-(defrule exp-below-middle
-  (declare (salience 4))
+(defrule exp-below-middle (declare (salience 4))
   (k-cell (x ?kx&:(<= ?kx 8)) (y ?ky) (content middle))
 =>
   (assert (cell-cf (x (+ ?kx 1)) (y ?ky) (CF 50)))
 )
 
-(defrule exp-above-middle
-  (declare (salience 4))
+(defrule exp-above-middle (declare (salience 4))
   (k-cell (x ?kx&:(>= ?kx 1)) (y ?ky) (content middle))
 =>
   (assert (cell-cf (x (- ?kx 1)) (y ?ky) (CF 50)))
 )
 
 ; ====== Top/Bot: 100 ======
-; Sotto a un top -> nave (100)
-(defrule exp-below-top-100
-  (declare (salience 4))
-  (k-cell (x ?kx) (y ?ky&:(<= ?ky 8)) (content top))
+; Sotto a un top -> nave (100): x = x + 1  ⇒ serve x <= 8
+(defrule exp-below-top-100 (declare (salience 4))
+  (k-cell (x ?kx&:(<= ?kx 8)) (y ?ky) (content top))
 =>
   (assert (cell-cf (x (+ ?kx 1)) (y ?ky) (CF 100)))
 )
-
-; Sopra a un bot -> nave (100)
+; Sopra a un bot -> nave (100): x = x - 1  ⇒ serve x >= 1
 (defrule exp-above-bot-100
   (declare (salience 4))
-  (k-cell (x ?kx) (y ?ky&:(>= ?ky 1)) (content bot))
+  (k-cell (x ?kx&:(>= ?kx 1)) (y ?ky) (content bot))
 =>
   (assert (cell-cf (x (- ?kx 1)) (y ?ky) (CF 100)))
 )
 
+
 ; ====== Right/Left forti: 1.0 ======
-; A sinistra di un right -> nave (100)
+; A sinistra di un right -> nave (100): y = y - 1  ⇒ serve y >= 1
 (defrule exp-left-of-right
   (declare (salience 4))
-  (k-cell (x ?kx&:(>= ?kx 1)) (y ?ky) (content right))
+  (k-cell (x ?kx) (y ?ky&:(>= ?ky 1)) (content right))
 =>
   (assert (cell-cf (x ?kx) (y (- ?ky 1)) (CF 100)))
 )
 
-; A destra di un left -> nave (100)
+; A destra di un left -> nave (100): y = y + 1  ⇒ serve y <= 8
 (defrule exp-right-of-left
   (declare (salience 4))
-  (k-cell (x ?kx&:(<= ?kx 8)) (y ?ky) (content left))
+  (k-cell (x ?kx) (y ?ky&:(<= ?ky 8)) (content left))
 =>
   (assert (cell-cf (x ?kx) (y (+ ?ky 1)) (CF 100)))
 )
+
 
 ; ====== Boost con step < 5: 80 ======
 ; (richiede un fatto di stato con lo step corrente)
@@ -340,7 +404,7 @@
   (assert (cell-cf (x ?x) (y ?y2) (CF 1)))
   (assert (advantage-disadvantage (sx ?x) (sy ?y1) (x ?x) (y ?y2)))
 )
-
+ 
 ; ROW: pezzo barca → −1
 (defrule bump-row-from-boat
   (declare (salience 3))
@@ -380,7 +444,7 @@
   (status (step ?s) (currently running))
   (moves (guesses ?ng&:(> ?ng 0)))
   (k-cell (x ?x) (y ?y) (content ?c&~water))
-  (not (exec (x ?bx) (y ?by)))  
+  (not (exec (x ?x) (y ?y)))  
   ?b <- (cf-best (x ?bx) (y ?by))
 =>
   (retract ?b)
@@ -392,9 +456,8 @@
   (declare (salience 0))
   (status (step ?s) (currently running))
   (moves (fires ?f&:(> ?f 0)))
-  ; Nessuna KSEL (cella di nave nota) senza guess
   (not (exists (and (k-cell (x ?kx) (y ?ky) (content ?kc&~water))
-                    (not (exec (x ?bx) (y ?by))))))
+                    (not (exec (x ?kx) (y ?ky))))))   
   ?b <- (cf-best (x ?bx) (y ?by) (CF ?c))
   (not (exec (x ?bx) (y ?by)))
 =>
@@ -402,12 +465,14 @@
   (assert (exec (step ?s) (action fire) (x ?bx) (y ?by)))
   (pop-focus)
 )
-(defrule act-guess-best-fallback (declare (salience 0))
+
+
+(defrule act-guess-best-fallback
+  (declare (salience 0))
   (status (step ?s) (currently running))
   (moves (fires 0) (guesses ?ng&:(> ?ng 0)))
-  ; (1) non applicabile: non ci sono KSEL libere
   (not (exists (and (k-cell (x ?kx) (y ?ky) (content ?kc&~water))
-                    (not (exec (x ?bx) (y ?by))))))
+                    (not (exec (x ?kx) (y ?ky))))))   
   ?b <- (cf-best (x ?bx) (y ?by) (CF ?c))
   (not (exec (x ?bx) (y ?by)))
 =>
@@ -415,6 +480,7 @@
   (assert (exec (step ?s) (action guess) (x ?bx) (y ?by)))
   (pop-focus)
 )
+
 
 
 
