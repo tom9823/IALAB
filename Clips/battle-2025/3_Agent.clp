@@ -358,7 +358,13 @@
   (pop-focus)
 )
 
-
+(defrule act-finish-the-game (declare (salience 8))
+  (status (step ?s) (currently running))
+=>
+  (assert (exec (step ?s) (action solve)))
+  (format t "[ACT] Step %d: SOLVE" ?s)
+  (pop-focus)
+)
 
 
 
