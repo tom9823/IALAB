@@ -539,6 +539,14 @@
 ; ---------------------------------------------
 ; fusioni/somma/clamp/penalità
 ; ---------------------------------------------
+; Normalizza CF molto alti a 100 (ma non toccare celle note)
+(defrule cf-cap-strong-to-100 (declare (salience 61))
+  ?f <- (cell-cf (x ?x) (y ?y) (CF ?c&:(> ?c 75)&:(< ?c 100)))
+  (not (k-cell (x ?x) (y ?y)))
+=>
+  (modify ?f (CF 100))
+  (format t "[NORM] CF at (%d,%d): %d -> 100 (strong and certain)%n" ?x ?y ?c)
+)
 
 (defrule combine-cf-penalty-ge (declare (salience 60))
   ?p <- (cell-cf (x ?x) (y ?y) (CF ?pn&:(< ?pn 0)))
@@ -584,6 +592,8 @@
           ?x ?y ?C1 ?C2 (+ ?C1 ?C2))
 )
 
+
+
 ; ---------------------------------------------
 ; tracking del massimo corrente
 ; ---------------------------------------------
@@ -624,7 +634,7 @@
   (status (step ?s) (currently running))
   (moves (guesses ?ng&:(> ?ng 0)))
   (k-cell (x ?x) (y ?y) (content ?c&~water))
-  (not (exec (x ?x) (y ?y)))
+  (not (exec (x ?x) (y ?y) (action guess)))
   ?b <- (cf-best (x ?bx) (y ?by))
 =>
   (retract ?b)
