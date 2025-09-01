@@ -70,7 +70,7 @@
 )
 
 (deffacts initial-facts
-	(maxduration 25)
+	(maxduration 100)
 	(status (step 0) (currently running))
         (statistics (num_fire_ok 0) (num_fire_ko 0) (num_guess_ok 0) (num_guess_ko 0) (num_safe 0) (num_sink 0))
 	(first-pass-to-env)
