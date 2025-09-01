@@ -629,11 +629,13 @@
 ;  - GUESS fallback se non hai fire
 ; ---------------------------------------------
 
-; Priorità massima: GUESS su barca nota
-(defrule act-guess-on-kboat (declare (salience 13))
+; Priorità massima: GUESS su barca nota (anche se già fired)
+(defrule act-guess-on-kboat
+  (declare (salience 13))
   (status (step ?s) (currently running))
   (moves (guesses ?ng&:(> ?ng 0)))
   (k-cell (x ?x) (y ?y) (content ?c&~water))
+  ; consenti GUESS anche se c'è stato un FIRE prima
   (not (exec (x ?x) (y ?y) (action guess)))
   ?b <- (cf-best (x ?bx) (y ?by))
 =>
@@ -643,75 +645,79 @@
   (pop-focus)
 )
 
-; Alta certezza: GUESS su CF >= 90
-(defrule act-guess-on-cell-cf-ge-90 (declare (salience 12))
+; Alta certezza: GUESS su CF >= 90 (se non ci sono barche non-guessate)
+(defrule act-guess-on-cell-cf-ge-90
+  (declare (salience 12))
   (status (step ?s) (currently running))
   (moves (guesses ?ng&:(> ?ng 0)))
-  ; se esistono barche note, lascia spazio alla regola precedente
+  ; blocca se esiste una barca NON ancora guessata
   (not (exists (and (k-cell (x ?kx) (y ?ky) (content ?kc&~water))
-                    (not (exec (x ?kx) (y ?ky))))))
+                    (not (exec (x ?kx) (y ?ky) (action guess))))))
   ?b <- (cf-best (x ?bx) (y ?by) (CF ?c&:(>= ?c 90)))
-  (not (exec (x ?bx) (y ?by)))
+  (not (exec (x ?bx) (y ?by) (action guess)))
 =>
   (retract ?b)
   (assert (exec (step ?s) (action guess) (x ?bx) (y ?by)))
-  (format t "[ACT] Step %d: GUESS on high-CF cell (%d,%d) CF=%d (>=90)%n"
+  (format t "[ACT] Step %d: GUESS high-CF (%d,%d) CF=%d%n" ?s ?bx ?by ?c)
+  (pop-focus)
+)
+
+; Esplorazione: FIRE su CF medio [30,75) se non ci sono barche non-guessate
+(defrule act-fire-best-explore
+  (declare (salience 11))
+  (status (step ?s) (currently running))
+  (moves (fires ?f&:(> ?f 0)))
+  (not (exists (and (k-cell (x ?kx) (y ?ky) (content ?kc&~water))
+                    (not (exec (x ?kx) (y ?ky) (action guess))))))
+  ?b <- (cf-best (x ?bx) (y ?by) (CF ?c&:(>= ?c 30)&:(< ?c 75)))
+  (not (exec (x ?bx) (y ?by) (action fire)))
+=>
+  (retract ?b)
+  (assert (exec (step ?s) (action fire) (x ?bx) (y ?by)))
+  (format t "[ACT] Step %d: FIRE explore (%d,%d) CF=%d in [30,75)%n"
           ?s ?bx ?by ?c)
   (pop-focus)
 )
 
-; Esplorazione: FIRE su CF medio [30,75)
-(defrule act-fire-best-explore (declare (salience 11))
+; Fallback con FIRE (evita sprechi su CF >= 75)
+(defrule act-fire-best-when-no-kboat
+  (declare (salience 10))
   (status (step ?s) (currently running))
   (moves (fires ?f&:(> ?f 0)))
   (not (exists (and (k-cell (x ?kx) (y ?ky) (content ?kc&~water))
-                    (not (exec (x ?kx) (y ?ky))))))
-  ?b <- (cf-best (x ?bx) (y ?by) (CF ?c&:(>= ?c 30)&:(< ?c 75)))
-  (not (exec (x ?bx) (y ?by)))
+                    (not (exec (x ?kx) (y ?ky) (action guess))))))
+  ?b <- (cf-best (x ?bx) (y ?by) (CF ?c&:(< ?c 75)))
+  (not (exec (x ?bx) (y ?by) (action fire)))
 =>
   (retract ?b)
   (assert (exec (step ?s) (action fire) (x ?bx) (y ?by)))
-  (format t "[ACT] Step %d: FIRE best-mid at (%d,%d) CF=%d in [%d,%d)%n"
-          ?s ?bx ?by ?c 30 75)
-  (pop-focus)
-)
-
-; Fallback con FIRE (ma evita sprechi su CF >= 75)
-(defrule act-fire-best-when-no-kboat (declare (salience 10))
-  (status (step ?s) (currently running))
-  (moves (fires ?f&:(> ?f 0)))
-  (not (exists (and (k-cell (x ?kx) (y ?ky) (content ?kc&~water))
-                    (not (exec (x ?kx) (y ?ky))))))
-  ?b <- (cf-best (x ?bx) (y ?by) (CF ?c&:(< ?c 75))) ; evita CF alti
-  (not (exec (x ?bx) (y ?by)))
-=>
-  (retract ?b)
-  (assert (exec (step ?s) (action fire) (x ?bx) (y ?by)))
-  (format t "[ACT] Step %d: FIRE fallback at (%d,%d) CF=%d (<75)%n"
+  (format t "[ACT] Step %d: FIRE fallback (%d,%d) CF=%d (<75)%n"
           ?s ?bx ?by ?c)
   (pop-focus)
 )
 
 ; Ultimo fallback: se non hai FIRE, usa GUESS sul best
-(defrule act-guess-best-fallback (declare (salience 9))
+(defrule act-guess-best-fallback
+  (declare (salience 9))
   (status (step ?s) (currently running))
   (moves (fires 0) (guesses ?ng&:(> ?ng 0)))
   (not (exists (and (k-cell (x ?kx) (y ?ky) (content ?kc&~water))
-                    (not (exec (x ?kx) (y ?ky))))))
+                    (not (exec (x ?kx) (y ?ky) (action guess))))))
   ?b <- (cf-best (x ?bx) (y ?by) (CF ?c))
-  (not (exec (x ?bx) (y ?by)))
+  (not (exec (x ?bx) (y ?by) (action guess)))
 =>
   (retract ?b)
   (assert (exec (step ?s) (action guess) (x ?bx) (y ?by)))
-  (format t "[ACT] Step %d: GUESS fallback at (%d,%d) CF=%d%n"
+  (format t "[ACT] Step %d: GUESS fallback (%d,%d) CF=%d%n"
           ?s ?bx ?by ?c)
   (pop-focus)
 )
 
+; (evita “solve” a ogni ciclo)
 (defrule act-finish-the-game (declare (salience 8))
   (status (step ?s) (currently running))
 =>
   (assert (exec (step ?s) (action solve)))
-  (format t "[ACT] Step %d: SOLVE" ?s)
+  (format t "[ACT] Step %d: SOLVE%n" ?s)
   (pop-focus)
 )
