@@ -4,13 +4,19 @@
 (defmodule AGENT (import MAIN ?ALL) (import ENV ?ALL) (export ?ALL))
 
 ; Marker
-(deftemplate advantage-disadvantage (slot sx) (slot sy) (slot x) (slot y))
+(deftemplate advantage-disadvantage
+  (slot sx (type INTEGER) (range 0 9))
+  (slot sy (type INTEGER) (range 0 9))
+  (slot x  (type INTEGER) (range 0 9))
+  (slot y  (type INTEGER) (range 0 9))
+)
 
 (deftemplate cell-cf
   (slot x  (type INTEGER) (range 0 9))
   (slot y  (type INTEGER) (range 0 9))
   (slot CF (type INTEGER))
 )
+
 (deftemplate cf-best
   (slot x  (type INTEGER) (range 0 9))
   (slot y  (type INTEGER) (range 0 9))
@@ -19,13 +25,19 @@
 
 ; --- Marker per non ripetere il bonus negli step successivi
 (deftemplate exp-above-middle-step-mark
-  (slot sx) (slot sy)   ; sorgente: middle
-  (slot x)  (slot y)    ; target che ha ricevuto il bonus
+  (slot sx (type INTEGER) (range 0 9))   ; sorgente: middle
+  (slot sy (type INTEGER) (range 0 9))
+  (slot x  (type INTEGER) (range 0 9))   ; target che ha ricevuto il bonus
+  (slot y  (type INTEGER) (range 0 9))
 )
+
 (deftemplate exp-below-middle-step-mark
-  (slot sx) (slot sy)
-  (slot x)  (slot y)
+  (slot sx (type INTEGER) (range 0 9))
+  (slot sy (type INTEGER) (range 0 9))
+  (slot x  (type INTEGER) (range 0 9))
+  (slot y  (type INTEGER) (range 0 9))
 )
+
 
 (deftemplate cell-hp
   (slot x  (type INTEGER) (range 0 9))
@@ -662,14 +674,14 @@
   (pop-focus)
 )
 
-; Esplorazione: FIRE su CF medio [30,75) se non ci sono barche non-guessate
+; Esplorazione: FIRE su CF medio [25,50) se non ci sono barche non-guessate
 (defrule act-fire-best-explore
   (declare (salience 11))
   (status (step ?s) (currently running))
   (moves (fires ?f&:(> ?f 0)))
   (not (exists (and (k-cell (x ?kx) (y ?ky) (content ?kc&~water))
                     (not (exec (x ?kx) (y ?ky) (action guess))))))
-  ?b <- (cf-best (x ?bx) (y ?by) (CF ?c&:(>= ?c 30)&:(< ?c 75)))
+  ?b <- (cf-best (x ?bx) (y ?by) (CF ?c&:(>= ?c 25)&:(< ?c 50)))
   (not (exec (x ?bx) (y ?by) (action fire)))
 =>
   (retract ?b)
@@ -686,7 +698,7 @@
   (moves (fires ?f&:(> ?f 0)))
   (not (exists (and (k-cell (x ?kx) (y ?ky) (content ?kc&~water))
                     (not (exec (x ?kx) (y ?ky) (action guess))))))
-  ?b <- (cf-best (x ?bx) (y ?by) (CF ?c&:(< ?c 75)))
+  ?b <- (cf-best (x ?bx) (y ?by) (CF ?c&:(< ?c 50)))
   (not (exec (x ?bx) (y ?by) (action fire)))
 =>
   (retract ?b)
