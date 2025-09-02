@@ -393,6 +393,89 @@
           ?kx ?ky ?kx (+ ?ky 1))
 )
 ; ---------------------------------------------
+; Vantaggi a distanza (solo DIS2 e DIS3)
+;  - DIS2: 3/7 => CF 43
+;  - DIS3: 1/7 => CF 14
+; Salience: 79 (tra le espansioni forti 80 e le adiacenze 78)
+; ---------------------------------------------
+
+; ===== TOP → si scende (x+2, x+3) =====
+(defrule adv-below-top-dis2-43
+  (declare (salience 79))
+  (k-cell (x ?kx&:(<= ?kx 7)) (y ?ky) (content top))
+=>
+  (assert (cell-cf (x (+ ?kx 2)) (y ?ky) (CF 43)))
+  (format t "[ADV] Top at (%d,%d): dist+2 -> (%d,%d) +CF 43%n"
+          ?kx ?ky (+ ?kx 2) ?ky)
+)
+
+(defrule adv-below-top-dis3-14
+  (declare (salience 79))
+  (k-cell (x ?kx&:(<= ?kx 6)) (y ?ky) (content top))
+=>
+  (assert (cell-cf (x (+ ?kx 3)) (y ?ky) (CF 14)))
+  (format t "[ADV] Top at (%d,%d): dist+3 -> (%d,%d) +CF 14%n"
+          ?kx ?ky (+ ?kx 3) ?ky)
+)
+
+; ===== BOT → si sale (x-2, x-3) =====
+(defrule adv-above-bot-dis2-43
+  (declare (salience 79))
+  (k-cell (x ?kx&:(>= ?kx 2)) (y ?ky) (content bot))
+=>
+  (assert (cell-cf (x (- ?kx 2)) (y ?ky) (CF 43)))
+  (format t "[ADV] Bot at (%d,%d): dist-2 -> (%d,%d) +CF 43%n"
+          ?kx ?ky (- ?kx 2) ?ky)
+)
+
+(defrule adv-above-bot-dis3-14
+  (declare (salience 79))
+  (k-cell (x ?kx&:(>= ?kx 3)) (y ?ky) (content bot))
+=>
+  (assert (cell-cf (x (- ?kx 3)) (y ?ky) (CF 14)))
+  (format t "[ADV] Bot at (%d,%d): dist-3 -> (%d,%d) +CF 14%n"
+          ?kx ?ky (- ?kx 3) ?ky)
+)
+
+; ===== RIGHT → si estende a SINISTRA (y-2, y-3) =====
+(defrule adv-left-of-right-dis2-43
+  (declare (salience 79))
+  (k-cell (x ?kx) (y ?ky&:(>= ?ky 2)) (content right))
+=>
+  (assert (cell-cf (x ?kx) (y (- ?ky 2)) (CF 43)))
+  (format t "[ADV] Right at (%d,%d): dist-2 -> (%d,%d) +CF 43%n"
+          ?kx ?ky ?kx (- ?ky 2))
+)
+
+(defrule adv-left-of-right-dis3-14
+  (declare (salience 79))
+  (k-cell (x ?kx) (y ?ky&:(>= ?ky 3)) (content right))
+=>
+  (assert (cell-cf (x ?kx) (y (- ?ky 3)) (CF 14)))
+  (format t "[ADV] Right at (%d,%d): dist-3 -> (%d,%d) +CF 14%n"
+          ?kx ?ky ?kx (- ?ky 3))
+)
+
+; ===== LEFT → si estende a DESTRA (y+2, y+3) =====
+(defrule adv-right-of-left-dis2-43
+  (declare (salience 79))
+  (k-cell (x ?kx) (y ?ky&:(<= ?ky 7)) (content left))
+=>
+  (assert (cell-cf (x ?kx) (y (+ ?ky 2)) (CF 43)))
+  (format t "[ADV] Left at (%d,%d): dist+2 -> (%d,%d) +CF 43%n"
+          ?kx ?ky ?kx (+ ?ky 2))
+)
+
+(defrule adv-right-of-left-dis3-14
+  (declare (salience 79))
+  (k-cell (x ?kx) (y ?ky&:(<= ?ky 6)) (content left))
+=>
+  (assert (cell-cf (x ?kx) (y (+ ?ky 3)) (CF 14)))
+  (format t "[ADV] Left at (%d,%d): dist+3 -> (%d,%d) +CF 14%n"
+          ?kx ?ky ?kx (+ ?ky 3))
+)
+
+; ---------------------------------------------
 ; Middle: adiacenze
 ; ---------------------------------------------
 (defrule exp-left-middle (declare (salience 78))
@@ -553,7 +636,7 @@
 ; ---------------------------------------------
 ; Normalizza CF molto alti a 100 (ma non toccare celle note)
 (defrule cf-cap-strong-to-100 (declare (salience 61))
-  ?f <- (cell-cf (x ?x) (y ?y) (CF ?c&:(> ?c 75)&:(< ?c 100)))
+  ?f <- (cell-cf (x ?x) (y ?y) (CF ?c&:(>= ?c 70)&:(< ?c 100)))
   (not (k-cell (x ?x) (y ?y)))
 =>
   (modify ?f (CF 100))
@@ -633,15 +716,16 @@
 )
 
 ; ---------------------------------------------
-; Azioni
-; Politica:
-;  - GUESS su barca nota o CF >= 90
-;  - FIRE esplorativo su 30 <= CF < 75
-;  - FIRE fallback (ma non su CF >= 75)
-;  - GUESS fallback se non hai fire
+; Azioni — Strategia di selezione della mossa
+; Ordine di priorità (salience alta → bassa):
+;  1) GUESS su barca nota (k-cell ~water).
+;  2) GUESS su best con CF ≥ 90, solo se non esistono k-cell non ancora guessate.
+;  3) FIRE “esplorativo” su best con 25 ≤ CF < 50, solo se non esistono k-cell non-guessate.
+;  4) FIRE “fallback” su best, solo se non esistono k-cell non-guessate.
+;  5) GUESS “fallback” su best
+;  6) FIRE generico “fallback” sul best (copertura finale), sempre evitando k-cell non-guessate.
+;  7) SOLVE per chiudere il turno (attiva la fase ENV).
 ; ---------------------------------------------
-
-; Priorità massima: GUESS su barca nota (anche se già fired)
 (defrule act-guess-on-kboat
   (declare (salience 13))
   (status (step ?s) (currently running))
@@ -692,8 +776,7 @@
 )
 
 ; Fallback con FIRE (evita sprechi su CF >= 75)
-(defrule act-fire-best-when-no-kboat
-  (declare (salience 10))
+(defrule act-fire-best-when-no-kboat (declare (salience 10))
   (status (step ?s) (currently running))
   (moves (fires ?f&:(> ?f 0)))
   (not (exists (and (k-cell (x ?kx) (y ?ky) (content ?kc&~water))
@@ -708,11 +791,10 @@
   (pop-focus)
 )
 
-; Ultimo fallback: se non hai FIRE, usa GUESS sul best
-(defrule act-guess-best-fallback
-  (declare (salience 9))
+; usa GUESS sul best
+(defrule act-guess-best-fallback (declare (salience 9))
   (status (step ?s) (currently running))
-  (moves (fires 0) (guesses ?ng&:(> ?ng 0)))
+  (moves (guesses ?ng&:(> ?ng 0)))
   (not (exists (and (k-cell (x ?kx) (y ?ky) (content ?kc&~water))
                     (not (exec (x ?kx) (y ?ky) (action guess))))))
   ?b <- (cf-best (x ?bx) (y ?by) (CF ?c))
@@ -724,9 +806,24 @@
           ?s ?bx ?by ?c)
   (pop-focus)
 )
+; Fallback con FIRE 
+(defrule act-fire-best (declare (salience 8))
+  (status (step ?s) (currently running))
+  (moves (fires ?f&:(> ?f 0)))
+  (not (exists (and (k-cell (x ?kx) (y ?ky) (content ?kc&~water))
+                    (not (exec (x ?kx) (y ?ky) (action guess))))))
+  ?b <- (cf-best (x ?bx) (y ?by) (CF ?c))
+  (not (exec (x ?bx) (y ?by) (action fire)))
+=>
+  (retract ?b)
+  (assert (exec (step ?s) (action fire) (x ?bx) (y ?by)))
+  (format t "[ACT] Step %d: FIRE fallback (%d,%d) CF=%d (<75)%n"
+          ?s ?bx ?by ?c)
+  (pop-focus)
+)
 
-; (evita “solve” a ogni ciclo)
-(defrule act-finish-the-game (declare (salience 8))
+
+(defrule act-finish-the-game (declare (salience 7))
   (status (step ?s) (currently running))
 =>
   (assert (exec (step ?s) (action solve)))
