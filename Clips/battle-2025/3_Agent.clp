@@ -113,7 +113,7 @@
 ;-------------------------------------------------------------
 ; BOAT PART = BOT
 ;  - Water: diagonali + W + E + S
-;  - Coda di fire: verso N (x-1, x-2, x-3)
+;  - Coda di fire/guess: verso N (x-1, x-2, x-3)
 ;-------------------------------------------------------------
 (defrule mark-bot-perimeter-and-queue-north
   (declare (salience 10))
@@ -295,8 +295,7 @@
 
 
 ; GUESS dalla coda (priorità alta)
-(defrule act-guess-from-queue
-  (declare (salience 2))
+(defrule act-guess-from-queue (declare (salience 2))
   (status (step ?s) (currently running))
   (moves (fires 0) (guesses ?g&:(> ?g 0)))
   ?q <- (fire-guess-cells (cells ?x ?y $?post))
@@ -330,9 +329,8 @@
   (retract ?q)
 )
 
-; FIRE sweep senza usare ENV::cell (usa grid-pos)
-(defrule act-fire-sweep
-  (declare (salience 1))
+; FIRE  (usa grid-pos)
+(defrule act-fire-sweep (declare (salience 1))
   (status (step ?s) (currently running))
   (moves (fires ?f&:(> ?f 0)))
   (grid-pos (x ?x) (y ?y))
@@ -345,8 +343,7 @@
 )
 
 ; GUESS sweep di fallback (quando la coda è vuota)
-(defrule act-guess-sweep
-  (declare (salience 0))
+(defrule act-guess-sweep (declare (salience 0))
   (status (step ?s) (currently running))
   (moves (fires 0) (guesses ?g&:(> ?g 0)))
   (grid-pos (x ?x) (y ?y))
@@ -365,6 +362,3 @@
   (format t "[ACT] Step %d: SOLVE" ?s)
   (pop-focus)
 )
-
-
-
