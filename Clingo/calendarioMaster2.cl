@@ -194,7 +194,7 @@ ora_ammissibile(S,G,O) :-
     ore_totali_giorno(G,Cap),
     OF = OI + Dur - 1,                
     OF <= Cap                         
-} :- insegnamento(I), I != presentazione_master, I != recupero.
+} 6 :- insegnamento(I), I != presentazione_master, I != recupero.
 
 % --- conteggi specifici per durata (per INSEGNAMENTO) ---
 
@@ -219,7 +219,7 @@ insegnamento_ha_blocchi_di_quattro_ore(Insegnamento, N) :-
    	insegnamento_ha_blocchi_di_due_ore(I,N2),
    	insegnamento_ha_blocchi_di_tre_ore(I,N3),
    	insegnamento_ha_blocchi_di_quattro_ore(I,N4),
-   	OreTotali = N2*2 + N3*3 + N4*4.
+   	OreTotali != N2*2 + N3*3 + N4*4.
 
 6 { blocco(I,D,Dur,S,G,OI,OF) :
     insegna(D,I), durata_blocco_per_insegnamento(I, Dur),
@@ -326,7 +326,7 @@ prereq(accessibilita_usabilita_progettazione_multimediale, linguaggi_markup)
    blocco(B,_,_,Sb,_,_,_),
    Sa > Sb.
 
-% stesso anno/settimana: confronta i giorni
+% stessa settimana: confronta i giorni
 :- prereq(A,B),
    blocco(A,_,_,S,Ga,_,_),
    blocco(B,_,_,S,Gb,_,_),

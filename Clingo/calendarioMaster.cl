@@ -213,6 +213,11 @@ docente(mazzei).
 ore_per_insegnamento(progettazione_basi_dati,20).
 insegna(mazzei,progettazione_basi_dati).
 
+% Corso fittizio: recupero
+insegnamento(recupero).
+insegna(da_assegnare ,recupero).
+docente(da_assegnare).
+
 lezione(tecnologie_server_side_web,settimana15,sabato,damiano,1,1,0).
 lezione(tecnologie_server_side_web,settimana15,sabato,damiano,2,0,0).
 lezione(tecnologie_server_side_web,settimana15,sabato,damiano,3,0,0).
@@ -237,6 +242,21 @@ lezione(tecnologie_server_side_web,settimana19,sabato,damiano,1,0,0).
 lezione(tecnologie_server_side_web,settimana19,sabato,damiano,2,0,0).
 lezione(tecnologie_server_side_web,settimana19,sabato,damiano,3,0,0).
 lezione(tecnologie_server_side_web,settimana19,sabato,damiano,4,0,1).
+
+lezione(recupero,settimana22,venerdi, da_assegnare,damiano,1,1,0).
+lezione(recupero,settimana22,venerdi, da_assegnare,damiano,2,0,0).
+lezione(recupero,settimana22,sabato, da_assegnare,damiano,1,0,0).
+lezione(recupero,settimana22,sabato, da_assegnare,damiano,2,0,0).
+
+lezione(recupero,settimana23,venerdi, da_assegnare,damiano,1,0,0).
+lezione(recupero,settimana23,venerdi, da_assegnare,damiano,2,0,0).
+lezione(recupero,settimana23,sabato, da_assegnare,damiano,1,0,0).
+lezione(recupero,settimana23,sabato, da_assegnare,damiano,2,0,0).
+
+lezione(recupero,settimana24,venerdi, da_assegnare,damiano,1,0,0).
+lezione(recupero,settimana24,venerdi, da_assegnare,damiano,2,0,0).
+lezione(recupero,settimana24,sabato, da_assegnare,damiano,1,0,0).
+lezione(recupero,settimana24,sabato, da_assegnare,damiano,2,0,1).
 
 % ————————————————————————————
 % Definizione delle 24 settimane del Master
@@ -273,7 +293,7 @@ H { lezione(I,S,G,D,O,P,U)
       prima_lezione(P), ultima_lezione(U)
   } H
   :- insegnamento(I), ore_per_insegnamento(I,H), I != presentazione_master,
-     I != tecnologie_server_side_web.
+     I != tecnologie_server_side_web, I != recupero.
 
 % Ore giornaliere per corso 
 ore_lezione_giorno_per_insegnamento(I,S,G,N) :-
