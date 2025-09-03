@@ -239,20 +239,6 @@ lezione(tecnologie_server_side_web,settimana19,sabato,damiano,2,0,0).
 lezione(tecnologie_server_side_web,settimana19,sabato,damiano,3,0,0).
 lezione(tecnologie_server_side_web,settimana19,sabato,damiano,4,0,1).
 
-rec_start(settimana2,  sabato, 2).
-rec_start(settimana3,  sabato, 4).
-rec_start(settimana5,  venerdi, 6).
-rec_start(settimana11, venerdi, 2).
-rec_start(settimana18, sabato, 2).
-rec_start(settimana22, venerdi, 4).
-
-rec_end(settimana2,  sabato, 3).
-rec_end(settimana3,  sabato, 5).
-rec_end(settimana5,  venerdi, 7).
-rec_end(settimana11, venerdi, 3).
-rec_end(settimana18, sabato, 3).
-rec_end(settimana22, venerdi, 5).
-
 % ————————————————————————————
 % Definizione delle 24 settimane del Master
 % ————————————————————————————
