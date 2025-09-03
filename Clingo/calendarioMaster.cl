@@ -305,9 +305,12 @@ ore_lezione_giorno_per_insegnamento(I,S,G,N) :-
 :- docente(D), giorno_disponibile(S,G),
    5 { lezione(_, S, G, D, O, _, _) : slot_ammissibile(S,G,O) }.
 
-% Al massimo una lezione per docente nello stesso (S,G,O)
-:- docente(D), slot_ammissibile(S,G,O),
-   2 { lezione(_, S, G, D, O, _, _) }.
+lezioni_docente_ora(D,S,G,O,N) :-
+  docente(D), slot_ammissibile(S,G,O),
+  N = #count { I,P,U : lezione(I,S,G,D,O,P,U) }.
+
+:- lezioni_docente_ora(D,S,G,O,N), N > 1.
+   
 
 % ogni corso ha esattamente una “prima” lezione
 1 { lezione(I,S,G,D,O,1,0) 

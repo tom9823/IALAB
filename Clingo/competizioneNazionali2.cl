@@ -12,7 +12,7 @@ giornata(giornata1;giornata2;giornata3).
 % Una squadra ha un solo continente di provenienza
 1 {provenienza(X,Y):continente(Y)} 1 :- squadra(X).
 
-numero_squadre_per_continente(C, N) :- continente(C),N = #count { S : provenienza(S,C) }.
+numero_squadre_per_continente(C, N) :- continente(C), N = #count { S : provenienza(S,C) }.
 
 % Europa ha esattamente 10 squadre
 :- not numero_squadre_per_continente(europa, 10).
