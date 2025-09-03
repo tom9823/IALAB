@@ -34,7 +34,6 @@ daynum(giovedi, 4).
 daynum(venerdi, 5).
 daynum(sabato, 6).
 
-% attivo se in (I,S,G) esiste almeno una lezione
 
 % — relazioni propedeutiche — 
 

@@ -280,7 +280,17 @@ insegnamento_ha_blocchi_di_quattro_ore_nel_giorno_iesimo(Settimana, Giorno, Inse
    Tot = N2*2 + N3*3 + N4*4,
    Tot > 0, Tot != 2, Tot != 3, Tot != 4.
 
-%sovrapposzione oraria
+% sovrapposizione oraria
+% due blocchi nello stesso (S,G) si sovrappongono se gli intervalli si intersecano
+:- blocco(I1,D1,_,S,G,OI1,OF1),
+   blocco(I2,D2,_,S,G,OI2,OF2),
+   (I1,D1,OI1,OF1) != (I2,D2,OI2,OF2),
+   OI1 <= OF2, OI2 >= OF1.
+
+% la distanza tra la prima e l’ultima lezione di ciascun insegnamento non deve superare le 8 settimane
+:- blocco(I,_,_,S1,_,_,_),
+   blocco(I,_,_,S2,_,_,_),
+   S1 <= S2, S2 - S1 > 8.
 
 % presentazione del master: prime due ore del primo giorno (sett. 1, ven=5)
 blocco(presentazione_master, presentatore, 2, 1, 5, 1, 2).
@@ -295,5 +305,37 @@ blocco(presentazione_master, presentatore, 2, 1, 5, 1, 2).
 :- not 1 { blocco(crossmedia_articolazione_scritture_multimediali,_,_,16,_,_,_) }.
 :- not 1 { blocco(introduzione_social_media_management,_,_,16,_,_,_) }.
 
+prereq(fondamenti_ict_paradigmi_programmazione, ambienti_sviluppo_linguaggi_client_side_web).
+prereq(ambienti_sviluppo_linguaggi_client_side_web, progettazione_sviluppo_app_web_mobile_i).
+prereq(progettazione_sviluppo_app_web_mobile_i, progettazione_sviluppo_app_web_mobile_ii).
+prereq(progettazione_basi_dati, tecnologie_server_side_web).
+prereq(linguaggi_markup, ambienti_sviluppo_linguaggi_client_side_web).
+prereq(project_management, marketing_digitale).
+prereq(marketing_digitale, tecniche_strumenti_marketing_digitale).
+prereq(project_management, strumenti_metodi_interazione_social_media).
+prereq(project_management, progettazione_grafica_design_interfacce).
+prereq(acquisizione_elaborazione_immagini_statiche_grafica, elementi_fotografia_digitale).
+prereq(elementi_fotografia_digitale, acquisizione_elaborazione_sequenze_immagini).
+prereq(acquisizione_elaborazione_immagini_statiche_grafica, grafica_3d).
+prereq(accessibilita_usabilita_progettazione_multimediale, linguaggi_markup)
+% prereq(A,B): A deve finire prima che inizi B
+
+% settimana: se A è dopo B → vieta
+:- prereq(A,B),
+   blocco(A,_,_,Sa,_,_,_),
+   blocco(B,_,_,Sb,_,_,_),
+   Sa > Sb.
+
+% stesso anno/settimana: confronta i giorni
+:- prereq(A,B),
+   blocco(A,_,_,S,Ga,_,_),
+   blocco(B,_,_,S,Gb,_,_),
+   Ga > Gb.
+
+% stessa settimana e stesso giorno: confronta fine(A) con inizio(B)
+:- prereq(A,B),
+   blocco(A,_,_,S,G,_,OFa),
+   blocco(B,_,_,S,G,Ob,_),
+   OFa >= Ob.
 
 #show blocco/7.
