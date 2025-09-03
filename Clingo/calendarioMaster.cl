@@ -243,20 +243,18 @@ lezione(tecnologie_server_side_web,settimana19,sabato,damiano,2,0,0).
 lezione(tecnologie_server_side_web,settimana19,sabato,damiano,3,0,0).
 lezione(tecnologie_server_side_web,settimana19,sabato,damiano,4,0,1).
 
-lezione(recupero,settimana22,venerdi, da_assegnare,damiano,1,1,0).
-lezione(recupero,settimana22,venerdi, da_assegnare,damiano,2,0,0).
-lezione(recupero,settimana22,sabato, da_assegnare,damiano,1,0,0).
-lezione(recupero,settimana22,sabato, da_assegnare,damiano,2,0,0).
 
-lezione(recupero,settimana23,venerdi, da_assegnare,damiano,1,0,0).
-lezione(recupero,settimana23,venerdi, da_assegnare,damiano,2,0,0).
-lezione(recupero,settimana23,sabato, da_assegnare,damiano,1,0,0).
-lezione(recupero,settimana23,sabato, da_assegnare,damiano,2,0,0).
+lezione(recupero,settimana22,venerdi,da_assegnare,1,1,0).
+lezione(recupero,settimana22,venerdi,da_assegnare,2,0,0).
+lezione(recupero,settimana22,sabato, da_assegnare,1,0,0).
+lezione(recupero,settimana22,sabato, da_assegnare,2,0,0).
+lezione(recupero,settimana23,venerdi,da_assegnare,1,0,0).
+lezione(recupero,settimana23,venerdi,da_assegnare,2,0,0).
+lezione(recupero,settimana23,sabato, da_assegnare,1,0,0).
+lezione(recupero,settimana23,sabato, da_assegnare,2,0,0).
+lezione(recupero,settimana24,venerdi,da_assegnare,1,0,0).
+lezione(recupero,settimana24,venerdi,da_assegnare,2,0,1).
 
-lezione(recupero,settimana24,venerdi, da_assegnare,damiano,1,0,0).
-lezione(recupero,settimana24,venerdi, da_assegnare,damiano,2,0,0).
-lezione(recupero,settimana24,sabato, da_assegnare,damiano,1,0,0).
-lezione(recupero,settimana24,sabato, da_assegnare,damiano,2,0,1).
 
 % ————————————————————————————
 % Definizione delle 24 settimane del Master
