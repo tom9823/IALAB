@@ -2,12 +2,19 @@ continente(europa;nordcentroamerica;sudamerica;asia;africa;oceania).
 
 squadra(squadra1;squadra2;squadra3;squadra4;squadra5;squadra6;squadra7;squadra8;squadra9;squadra10;squadra11;squadra12;squadra13;squadra14;squadra15;squadra16;squadra17;squadra18;squadra19;squadra20;squadra21;squadra22;squadra23;squadra24;squadra25;squadra26;squadra27;squadra28;squadra29;squadra30;squadra31;squadra32).
 
+% Una squadra ha un solo continente di provenienza
 1 {provenienza(X,Y):continente(Y)} 1 :- squadra(X).
+% Europa ha esattamente 10 squadre
 10 {provenienza(Y,europa):squadra(Y)} 10:- continente(europa).
+% Nordcentroamerica ha esattamente 4 squadre
 4 {provenienza(Y,nordcentroamerica):squadra(Y)} 4:- continente(nordcentroamerica).
+% Sudamerica ha esattamente 8 squadre
 8 {provenienza(Y,sudamerica):squadra(Y)} 8:- continente(sudamerica).
+% Asia ha esattamente 4 squadre
 4 {provenienza(Y,asia):squadra(Y)} 4:- continente(asia).
+% Africa ha esattamente 4 squadre
 4 {provenienza(Y,africa):squadra(Y)} 4:- continente(africa).
+% Oceania ha esattamente 2 squadre
 2 {provenienza(Y,oceania):squadra(Y)} 2:- continente(oceania).
 
 girone(girone1;girone2;girone3;girone4;girone5;girone6;girone7;girone8).
@@ -65,3 +72,5 @@ gioca(T,P,D) :- match(P,A,B), partita_giornata(P,D),T = B.
 
 % Integrity constraint: nessuna squadra può giocare due partite diverse nello stessa giornata D
 :- gioca(T,P1,D), gioca(T,P2,D), P1 < P2.
+
+#show gioca/3.

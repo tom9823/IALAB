@@ -280,7 +280,7 @@ slot_ammissibile(S,G,O) :-
 
 prima_lezione(0..1).
 ultima_lezione(0..1).
-
+% lezione(I,S,G,D,O,P,U) I: insegnamento, D: docente, S: settimana, G:giorno, O:slot,P: flag prima lezione, U: flag ultima lezione 
 % Generazione lezioni (solo sugli slot ammessi)
 H { lezione(I,S,G,D,O,P,U)
     : insegna(D,I),
