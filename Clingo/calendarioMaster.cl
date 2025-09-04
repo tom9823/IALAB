@@ -1,5 +1,3 @@
-ore_totali_master(1152).
-ore_occupate_master(270).
 
 % Predicato di supporto: week_num(settimanaN,N).
 week_num(settimana1, 1).
@@ -221,7 +219,6 @@ ore_per_insegnamento(recupero, 12).
 
 
 
-
 % un blocco da 4 ore è una quadrupla di ore consecutive per TSSW
 blocco4_tssw(S,G,O1) :-
   lezione(tecnologie_server_side_web,S,G,_,O1,_,_),
@@ -248,6 +245,16 @@ blocco2_rec(S,G,O1) :-
 % requisito: almeno 6 blocchi liberi da 2h complessivi
 :- #count { S,G,O : blocco2_rec(S,G,O) } < 6.
 
+% quante lezioni cadono nello stesso slot (S,G,O)
+numero_lezioni_per_slot(S,G,O,N) :-
+  slot_ammissibile(S,G,O),
+  N = #count { I,D,P,U : lezione(I,S,G,D,O,P,U) }.
+
+% nessuna sovrapposizione: >1 lezione nello stesso slot è vietato
+:- slot_ammissibile(S,G,O),
+   numero_lezioni_per_slot(S,G,O,N),
+   N > 1.
+   
 % ————————————————————————————
 % Definizione delle 24 settimane del Master
 % ————————————————————————————
