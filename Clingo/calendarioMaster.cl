@@ -217,44 +217,36 @@ insegna(mazzei,progettazione_basi_dati).
 insegnamento(recupero).
 insegna(da_assegnare ,recupero).
 docente(da_assegnare).
-
-lezione(tecnologie_server_side_web,settimana15,sabato,damiano,1,1,0).
-lezione(tecnologie_server_side_web,settimana15,sabato,damiano,2,0,0).
-lezione(tecnologie_server_side_web,settimana15,sabato,damiano,3,0,0).
-lezione(tecnologie_server_side_web,settimana15,sabato,damiano,4,0,0).
-
-lezione(tecnologie_server_side_web,settimana16,sabato,damiano,1,0,0).
-lezione(tecnologie_server_side_web,settimana16,sabato,damiano,2,0,0).
-lezione(tecnologie_server_side_web,settimana16,sabato,damiano,3,0,0).
-lezione(tecnologie_server_side_web,settimana16,sabato,damiano,4,0,0).
-
-lezione(tecnologie_server_side_web,settimana17,sabato,damiano,1,0,0).
-lezione(tecnologie_server_side_web,settimana17,sabato,damiano,2,0,0).
-lezione(tecnologie_server_side_web,settimana17,sabato,damiano,3,0,0).
-lezione(tecnologie_server_side_web,settimana17,sabato,damiano,4,0,0).
-
-lezione(tecnologie_server_side_web,settimana18,sabato,damiano,1,0,0).
-lezione(tecnologie_server_side_web,settimana18,sabato,damiano,2,0,0).
-lezione(tecnologie_server_side_web,settimana18,sabato,damiano,3,0,0).
-lezione(tecnologie_server_side_web,settimana18,sabato,damiano,4,0,0).
-
-lezione(tecnologie_server_side_web,settimana19,sabato,damiano,1,0,0).
-lezione(tecnologie_server_side_web,settimana19,sabato,damiano,2,0,0).
-lezione(tecnologie_server_side_web,settimana19,sabato,damiano,3,0,0).
-lezione(tecnologie_server_side_web,settimana19,sabato,damiano,4,0,1).
+ore_per_insegnamento(recupero, 12).
 
 
-lezione(recupero,settimana22,venerdi,da_assegnare,1,1,0).
-lezione(recupero,settimana22,venerdi,da_assegnare,2,0,0).
-lezione(recupero,settimana22,sabato, da_assegnare,1,0,0).
-lezione(recupero,settimana22,sabato, da_assegnare,2,0,0).
-lezione(recupero,settimana23,venerdi,da_assegnare,1,0,0).
-lezione(recupero,settimana23,venerdi,da_assegnare,2,0,0).
-lezione(recupero,settimana23,sabato, da_assegnare,1,0,0).
-lezione(recupero,settimana23,sabato, da_assegnare,2,0,0).
-lezione(recupero,settimana24,venerdi,da_assegnare,1,0,0).
-lezione(recupero,settimana24,venerdi,da_assegnare,2,0,1).
 
+
+% un blocco da 4 ore è una quadrupla di ore consecutive per TSSW
+blocco4_tssw(S,G,O1) :-
+  lezione(tecnologie_server_side_web,S,G,_,O1,_,_),
+  O2 = O1+1, lezione(tecnologie_server_side_web,S,G,_,O2,_,_),
+  O3 = O1+2, lezione(tecnologie_server_side_web,S,G,_,O3,_,_),
+  O4 = O1+3, lezione(tecnologie_server_side_web,S,G,_,O4,_,_).
+
+% i blocchi da 4h non possono sovrapporsi (nemmeno parzialmente)
+:- blocco4_tssw(S,G,Oa), blocco4_tssw(S,G,Ob),
+   Oa != Ob, Oa <= Ob+3, Ob <= Oa+3.
+
+% devono essere esattamente 5 blocchi da 4h
+:- #count { S,G,O : blocco4_tssw(S,G,O) } != 5.
+
+% un blocco libero da 2 ore è una coppia di ore consecutive per 'recupero'
+blocco2_rec(S,G,O1) :-
+  lezione(recupero,S,G,_,O1,_,_),
+  O2 = O1+1, lezione(recupero,S,G,_,O2,_,_).
+
+% i blocchi liberi da 2h non si possono toccare/sovrapporre
+:- blocco2_rec(S,G,Oa), blocco2_rec(S,G,Ob),
+   Oa != Ob, Oa <= Ob+1, Ob <= Oa+1.
+
+% requisito: almeno 6 blocchi liberi da 2h complessivi
+:- #count { S,G,O : blocco2_rec(S,G,O) } < 6.
 
 % ————————————————————————————
 % Definizione delle 24 settimane del Master
@@ -290,8 +282,7 @@ H { lezione(I,S,G,D,O,P,U)
       slot_ammissibile(S,G,O),
       prima_lezione(P), ultima_lezione(U)
   } H
-  :- insegnamento(I), ore_per_insegnamento(I,H), I != presentazione_master,
-     I != tecnologie_server_side_web, I != recupero.
+  :- insegnamento(I), ore_per_insegnamento(I,H), I != presentazione_master.
 
 % Ore giornaliere per corso 
 ore_lezione_giorno_per_insegnamento(I,S,G,N) :-
