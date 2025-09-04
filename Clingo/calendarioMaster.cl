@@ -359,27 +359,29 @@ lezione(presentazione_master, settimana1, venerdi, presentatore, 2, 0, 1).
    W > 7.
 
 % corsi prerequisiti
-% vincolo per settimane diverse usando week_num
+% settimane diverse: ultima(P) deve stare prima della prima(C)
 :- prereq(P,C),
-   lezione(P, WS1, _, _, _,  _, _),
-   lezione(C, WS2, _, _, _,  _, _),
+   lezione(P, WS1, _, _, _, 0, 1),     % last(P)
+   lezione(C, WS2, _, _, _, 1, 0),     % first(C)
    week_num(WS1, N1),
    week_num(WS2, N2),
    N1 > N2.
 
-% vincolo per stessa settimana, ordinamento per giorno
+% stessa settimana: giorno di ultima(P) deve essere <= giorno di prima(C);
+% vietiamo il caso in cui last(P) è in un giorno successivo
 :- prereq(P,C),
-   lezione(P, W, Gp, _,  _, _, _),
-   lezione(C, W, Gc, _, _, _, _),
+   lezione(P, W, Gp, _, _, 0, 1),      % last(P) in W,Gp
+   lezione(C, W, Gc, _, _, 1, 0),      % first(C) in W,Gc
    daynum(Gp, Dp),
    daynum(Gc, Dc),
    Dp > Dc.
 
-% vincolo per stesso giorno, ordinamento per slot
+% stesso giorno: slot di ultima(P) deve essere < slot di prima(C)
 :- prereq(P,C),
-   lezione(P, W, G, Tp, _, _, _),
-   lezione(C, W, G, Tc, _, _, _),
+   lezione(P, W, G, Tp, _, 0, 1),      % last(P) in W,G,Tp
+   lezione(C, W, G, Tc, _, 1, 0),      % first(C) in W,G,Tc
    Tp >= Tc.
+
 
 
 % La distanza tra prima e ultima lezione dell’insegnamento I non supera 8 settimane
