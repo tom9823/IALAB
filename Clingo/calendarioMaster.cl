@@ -219,31 +219,30 @@ ore_per_insegnamento(recupero, 12).
 
 
 
-% un blocco da 4 ore è una quadrupla di ore consecutive per TSSW
+% (1) Giorni in cui esiste almeno una lezione di TSSW
+giornata_tssw(S,G) :- lezione(tecnologie_server_side_web,S,G,_,_,_,_).
+
+% (2) Definizione di “blocco da 4 ore consecutive” per TSSW
 blocco4_tssw(S,G,O1) :-
   lezione(tecnologie_server_side_web,S,G,_,O1,_,_),
   O2 = O1+1, lezione(tecnologie_server_side_web,S,G,_,O2,_,_),
   O3 = O1+2, lezione(tecnologie_server_side_web,S,G,_,O3,_,_),
   O4 = O1+3, lezione(tecnologie_server_side_web,S,G,_,O4,_,_).
 
-% i blocchi da 4h non possono sovrapporsi (nemmeno parzialmente)
-:- blocco4_tssw(S,G,Oa), blocco4_tssw(S,G,Ob),
-   Oa != Ob, Oa <= Ob+3, Ob <= Oa+3.
+% (3) Comodità: esiste un blocco 
+ha_blocco4_tssw(S,G) :- blocco4_tssw(S,G,_).
 
-% devono essere esattamente 5 blocchi da 4h
-:- #count { S,G,O : blocco4_tssw(S,G,O) } != 5.
+% (4) Vincolo UNIVERSALE: ogni (S,G) con TSSW deve avere almeno un blocco4
+:- giornata_tssw(S,G), not ha_blocco4_tssw(S,G).
 
-% un blocco libero da 2 ore è una coppia di ore consecutive per 'recupero'
-blocco2_rec(S,G,O1) :-
-  lezione(recupero,S,G,_,O1,_,_),
-  O2 = O1+1, lezione(recupero,S,G,_,O2,_,_).
+giornata_recupero(S,G) :- lezione(recupero,S,G,_,_,_,_).
+coppia_in_giornata_rec(S,G) :-
+  giornata_recupero(S,G),
+  lezione(recupero,S,G,_,O,_,_),
+  Oi2 = O+1,
+  lezione(recupero,S,G,_,Oi2,_,_).
 
-% i blocchi liberi da 2h non si possono toccare/sovrapporre
-:- blocco2_rec(S,G,Oa), blocco2_rec(S,G,Ob),
-   Oa != Ob, Oa <= Ob+1, Ob <= Oa+1.
-
-% requisito: almeno 6 blocchi liberi da 2h complessivi
-:- #count { S,G,O : blocco2_rec(S,G,O) } < 6.
+:- giornata_recupero(S,G), not coppia_in_giornata_rec(S,G).
 
 % quante lezioni cadono nello stesso slot (S,G,O)
 numero_lezioni_per_slot(S,G,O,N) :-
