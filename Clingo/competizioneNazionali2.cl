@@ -58,7 +58,7 @@ numero_continenti_diversi_per_girone(G,N) :-
   girone(G),
   N = #count { C : continente_presente(G,C) }.
 
-:- girone(G), not numero_continenti_diversi_per_girone(G,3).
+:- girone(G), numero_continenti_diversi_per_girone(G,N), N < 3.
 
 
 0 { partita(S, S2, Giornata, Girone) : giornata(Giornata), ha_girone(S,Girone), ha_girone(S2,Girone), squadra(S2), S != S2 } 1 :- squadra(S), giornata(Giornata).
