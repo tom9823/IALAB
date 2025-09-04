@@ -164,11 +164,14 @@ insegna(presentatore,presentazione_master).
 insegnamento(recupero).
 insegna(da_assegnare ,recupero).
 docente(da_assegnare).
+ore_per_insegnamento(recupero,12).
 
 settimana(1..24).
 giorno(1..6).
 durata(2..4).
 durata_blocco_per_insegnamento(I, D):- insegnamento(I), durata(D), I != tecnologie_server_side_web, I != recupero, I != presentazione_master.
+
+% le ore dell’insegnamento di “Tecnologie server-side per il web” devono essere organizzate in 5 blocchi da 4 ore ciascuno
 durata_blocco_per_insegnamento(tecnologie_server_side_web, 4).
 durata_blocco_per_insegnamento(recupero, 2).
 
@@ -194,7 +197,7 @@ ora_ammissibile(S,G,O) :-
     ore_totali_giorno(G,Cap),
     OF = OI + Dur - 1,                
     OF <= Cap                         
-} 6 :- insegnamento(I), I != presentazione_master, I != recupero.
+} 6 :- insegnamento(I), I != presentazione_master.
 
 % --- conteggi specifici per durata (per INSEGNAMENTO) ---
 
@@ -214,20 +217,18 @@ insegnamento_ha_blocchi_di_quattro_ore(Insegnamento, N) :-
                blocco(Insegnamento, Docente, 4, Settimana, Giorno, OraInizio, OraFine) }.
 
 % vincolo: a ciascun insegnamento 
-:- insegnamento(I), I != presentazione_master, I != recupero,
+:- insegnamento(I), I != presentazione_master,
 	giorno_disponibile(S,G), ore_per_insegnamento(I,OreTotali),
    	insegnamento_ha_blocchi_di_due_ore(I,N2),
    	insegnamento_ha_blocchi_di_tre_ore(I,N3),
    	insegnamento_ha_blocchi_di_quattro_ore(I,N4),
    	OreTotali != N2*2 + N3*3 + N4*4.
 
-6 { blocco(I,D,Dur,S,G,OI,OF) :
-    insegna(D,I), durata_blocco_per_insegnamento(I, Dur),
-    ora_ammissibile(S,G,OI),
-    ore_totali_giorno(G,Cap),
-    OF = OI + Dur - 1,                
-    OF <= Cap                         
-} :- insegnamento(I), I = recupero.
+% due blocchi nello stesso (S,G) si sovrappongono se gli intervalli si intersecano
+:- blocco(I1,D1,_,S,G,OI1,OF1),
+   blocco(I2,D2,_,S,G,OI2,OF2),
+   (I1,D1,OI1,OF1) != (I2,D2,OI2,OF2),
+   OF1 >= OI2, OF2 >= OI1.
 
 % --- conteggi specifici per durata ---
 
@@ -280,12 +281,7 @@ insegnamento_ha_blocchi_di_quattro_ore_nel_giorno_iesimo(Settimana, Giorno, Inse
    Tot = N2*2 + N3*3 + N4*4,
    Tot > 0, Tot != 2, Tot != 3, Tot != 4.
 
-% sovrapposizione oraria
-% due blocchi nello stesso (S,G) si sovrappongono se gli intervalli si intersecano
-:- blocco(I1,D1,_,S,G,OI1,OF1),
-   blocco(I2,D2,_,S,G,OI2,OF2),
-   (I1,D1,OI1,OF1) != (I2,D2,OI2,OF2),
-   OI1 <= OF2, OI2 >= OF1.
+
 
 % la distanza tra la prima e l’ultima lezione di ciascun insegnamento non deve superare le 8 settimane
 :- blocco(I,_,_,S1,_,_,_),
@@ -295,15 +291,31 @@ insegnamento_ha_blocchi_di_quattro_ore_nel_giorno_iesimo(Settimana, Giorno, Inse
 % presentazione del master: prime due ore del primo giorno (sett. 1, ven=5)
 blocco(presentazione_master, presentatore, 2, 1, 5, 1, 2).
 
+% l’insegnamento “Project Management” deve concludersi non oltre la prima settimana full-time;
+
 :- blocco(project_management,_,_,S,_,_,_), S > 7.
 
-% le prime lezioni di Crossmedia e di Introduzione SMM devono essere nella seconda full-time (sett. 16)
+% le prime lezioni degli insegnamenti “Crossmedia: articolazione delle scritture multimediali” e 
+% “Introduzione al social media management” devono essere collocate nella seconda settimana full-time;
 
 :- blocco(crossmedia_articolazione_scritture_multimediali,_,_,S,_,_,_), S < 16.
 :- blocco(introduzione_social_media_management,_,_,S,_,_,_), S < 16.
 
-:- not 1 { blocco(crossmedia_articolazione_scritture_multimediali,_,_,16,_,_,_) }.
-:- not 1 { blocco(introduzione_social_media_management,_,_,16,_,_,_) }.
+lezioni_di_crossmedia_articolazione_scritture_multimediali_s16(N) :- 
+    N = #count { Docente, Dur, Giorno, OraInizio, OraFine :
+               blocco(crossmedia_articolazione_scritture_multimediali, Docente, Dur, 16, Giorno, OraInizio, OraFine) }.
+:- lezioni_di_crossmedia_articolazione_scritture_multimediali_s16(N), N < 1.
+
+lezioni_di_introduzione_smm_s16(N) :-
+  N = #count { Docente, Dur, Giorno, OraInizio, OraFine :
+               blocco(introduzione_social_media_management, Docente, Dur, 16, Giorno, OraInizio, OraFine) }.
+
+:- lezioni_di_introduzione_smm_s16(N), N < 1.
+
+%le lezioni dei vari insegnamenti devono rispettare le seguenti propedeuticità, in
+% particolare la prima lezione dell’insegnamento della colonna di destra deve
+% essere successiva all’ultima lezione del corrispondente insegnamento della
+% colonna di sinistra:
 
 prereq(fondamenti_ict_paradigmi_programmazione, ambienti_sviluppo_linguaggi_client_side_web).
 prereq(ambienti_sviluppo_linguaggi_client_side_web, progettazione_sviluppo_app_web_mobile_i).
@@ -317,7 +329,11 @@ prereq(project_management, progettazione_grafica_design_interfacce).
 prereq(acquisizione_elaborazione_immagini_statiche_grafica, elementi_fotografia_digitale).
 prereq(elementi_fotografia_digitale, acquisizione_elaborazione_sequenze_immagini).
 prereq(acquisizione_elaborazione_immagini_statiche_grafica, grafica_3d).
-prereq(accessibilita_usabilita_progettazione_multimediale, linguaggi_markup)
+
+% la prima lezione dell’insegnamento “Accessibilità e usabilità nella
+% progettazione multimediale” deve essere collocata prima che siano terminate
+% le lezioni dell’insegnamento “Linguaggi di markup
+prereq(accessibilita_usabilita_progettazione_multimediale, linguaggi_markup).
 % prereq(A,B): A deve finire prima che inizi B
 
 % settimana: se A è dopo B → vieta
