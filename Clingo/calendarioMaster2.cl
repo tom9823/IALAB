@@ -258,28 +258,15 @@ docente_ha_blocchi_di_quattro_ore_nel_giorno_iesimo(Settimana, Giorno, Docente, 
 
 % --- conteggi specifici per durata (per INSEGNAMENTO) ---
 
-insegnamento_ha_blocchi_di_due_ore_nel_giorno_iesimo(Settimana, Giorno, Insegnamento, N) :-
-  giorno_disponibile(Settimana, Giorno), insegnamento(Insegnamento),
-  N = #count { Docente, OraInizio, OraFine :
-               blocco(Insegnamento, Docente, 2, Settimana, Giorno, OraInizio, OraFine) }.
+ore_assegnate(I,Tot) :-
+  insegnamento(I),
+  Tot = #sum { Dur : blocco(I,_,Dur,_,_,_,_) }.
 
-insegnamento_ha_blocchi_di_tre_ore_nel_giorno_iesimo(Settimana, Giorno, Insegnamento, N) :-
-  giorno_disponibile(Settimana, Giorno), insegnamento(Insegnamento),
-  N = #count { Docente, OraInizio, OraFine :
-               blocco(Insegnamento, Docente, 3, Settimana, Giorno, OraInizio, OraFine) }.
-
-insegnamento_ha_blocchi_di_quattro_ore_nel_giorno_iesimo(Settimana, Giorno, Insegnamento, N) :-
-  giorno_disponibile(Settimana, Giorno), insegnamento(Insegnamento),
-  N = #count { Docente, OraInizio, OraFine :
-               blocco(Insegnamento, Docente, 4, Settimana, Giorno, OraInizio, OraFine) }.
-
-% vincolo: a ciascun insegnamento assegnare 2, 3 o 4 ore nello stesso giorno (se ha lezione quel giorno)
-:- insegnamento(I), giorno_disponibile(S,G),
-   insegnamento_ha_blocchi_di_due_ore_nel_giorno_iesimo(S,G,I,N2),
-   insegnamento_ha_blocchi_di_tre_ore_nel_giorno_iesimo(S,G,I,N3),
-   insegnamento_ha_blocchi_di_quattro_ore_nel_giorno_iesimo(S,G,I,N4),
-   Tot = N2*2 + N3*3 + N4*4,
-   Tot > 0, Tot != 2, Tot != 3, Tot != 4.
+% a ciascun insegnamento (tranne presentazione_master) devono tornare le ore totali
+:- insegnamento(I), I != presentazione_master,
+   ore_per_insegnamento(I,OreTotali),
+   ore_assegnate(I,Tot),
+   Tot != OreTotali.
 
 
 
