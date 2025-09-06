@@ -197,38 +197,9 @@ ora_ammissibile(S,G,O) :-
     ore_totali_giorno(G,Cap),
     OF = OI + Dur - 1,                
     OF <= Cap                         
-} 6 :- insegnamento(I), I != presentazione_master.
+}  :- insegnamento(I), I != presentazione_master.
 
-% --- conteggi specifici per durata (per INSEGNAMENTO) ---
 
-insegnamento_ha_blocchi_di_due_ore(Insegnamento, N) :- 
-	insegnamento(Insegnamento),
-	N = #count { Settimana, Giorno,Docente, OraInizio, OraFine :
-               blocco(Insegnamento, Docente, 2, Settimana, Giorno, OraInizio, OraFine) }.
-
-insegnamento_ha_blocchi_di_tre_ore(Insegnamento, N) :-
-  insegnamento(Insegnamento),
-  N = #count { Settimana, Giorno,Docente, OraInizio, OraFine :
-               blocco(Insegnamento, Docente, 3, Settimana, Giorno, OraInizio, OraFine) }.
-
-insegnamento_ha_blocchi_di_quattro_ore(Insegnamento, N) :-
-  insegnamento(Insegnamento),
-  N = #count { Settimana, Giorno,Docente, OraInizio, OraFine :
-               blocco(Insegnamento, Docente, 4, Settimana, Giorno, OraInizio, OraFine) }.
-
-% vincolo: a ciascun insegnamento 
-:- insegnamento(I), I != presentazione_master,
-	giorno_disponibile(S,G), ore_per_insegnamento(I,OreTotali),
-   	insegnamento_ha_blocchi_di_due_ore(I,N2),
-   	insegnamento_ha_blocchi_di_tre_ore(I,N3),
-   	insegnamento_ha_blocchi_di_quattro_ore(I,N4),
-   	OreTotali != N2*2 + N3*3 + N4*4.
-
-% due blocchi nello stesso (S,G) si sovrappongono se gli intervalli si intersecano
-:- blocco(I1,D1,_,S,G,OI1,OF1),
-   blocco(I2,D2,_,S,G,OI2,OF2),
-   (I1,D1,OI1,OF1) != (I2,D2,OI2,OF2),
-   OF1 >= OI2, OF2 >= OI1.
 
 % --- conteggi specifici per durata ---
 
@@ -256,19 +227,23 @@ docente_ha_blocchi_di_quattro_ore_nel_giorno_iesimo(Settimana, Giorno, Docente, 
    docente_ha_blocchi_di_quattro_ore_nel_giorno_iesimo(S,G,D,N4),
    N2*2 + N3*3 + N4*4 > 4.
 
-% --- conteggi specifici per durata (per INSEGNAMENTO) ---
 
-ore_assegnate(I,Tot) :-
-  insegnamento(I),
-  Tot = #sum { Dur : blocco(I,_,Dur,_,_,_,_) }.
-
-% a ciascun insegnamento (tranne presentazione_master) devono tornare le ore totali
-:- insegnamento(I), I != presentazione_master,
-   ore_per_insegnamento(I,OreTotali),
-   ore_assegnate(I,Tot),
-   Tot != OreTotali.
-
-
+% --- conteggi specifici per durata (per INSEGNAMENTO) --- 
+insegnamento_ha_blocchi_di_due_ore(Insegnamento, N) :- insegnamento(Insegnamento), 
+    N = #count { Settimana, Giorno,Docente, OraInizio, OraFine : blocco(Insegnamento, Docente, 2, Settimana, Giorno, OraInizio, OraFine) }. 
+insegnamento_ha_blocchi_di_tre_ore(Insegnamento, N) :- insegnamento(Insegnamento), 
+    N = #count { Settimana, Giorno,Docente, OraInizio, OraFine : blocco(Insegnamento, Docente, 3, Settimana, Giorno, OraInizio, OraFine) }. 
+insegnamento_ha_blocchi_di_quattro_ore(Insegnamento, N) :- insegnamento(Insegnamento), 
+    N = #count { Settimana, Giorno,Docente, OraInizio, OraFine : blocco(Insegnamento, Docente, 4, Settimana, Giorno, OraInizio, OraFine) }. 
+% vincolo: a ciascun insegnamento 
+:- insegnamento(I), 
+    I != presentazione_master, 
+    giorno_disponibile(S,G), 
+    ore_per_insegnamento(I,OreTotali), 
+    insegnamento_ha_blocchi_di_due_ore(I,N2), 
+    insegnamento_ha_blocchi_di_tre_ore(I,N3), 
+    insegnamento_ha_blocchi_di_quattro_ore(I,N4), 
+    OreTotali != N2*2 + N3*3 + N4*4.
 
 % la distanza tra la prima e l’ultima lezione di ciascun insegnamento non deve superare le 8 settimane
 :- blocco(I,_,_,S1,_,_,_),
@@ -341,4 +316,13 @@ prereq(accessibilita_usabilita_progettazione_multimediale, linguaggi_markup).
    blocco(B,_,_,S,G,Ob,_),
    OFa >= Ob.
 
+% due blocchi nello stesso (S,G) si sovrappongono se gli intervalli si intersecano
+:- blocco(I1,D1,_,S,G,OI1,OF1),
+   blocco(I2,D2,_,S,G,OI2,OF2),
+   (I1,D1,OI1,OF1) != (I2,D2,OI2,OF2),
+   OF1 >= OI2, OF2 >= OI1.
+
+#show insegnamento_ha_blocchi_di_due_ore/2.
+#show insegnamento_ha_blocchi_di_tre_ore/2.
+#show insegnamento_ha_blocchi_di_quattro_ore/2.
 #show blocco/7.
