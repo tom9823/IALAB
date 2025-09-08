@@ -201,7 +201,7 @@ ora_ammissibile(S,G,O) :-
 
 
 
-% --- conteggi specifici per durata ---
+% --- conteggi specifici per durata(per DOCENTE) ---
 
 docente_ha_blocchi_di_due_ore_nel_giorno_iesimo(Settimana, Giorno, Docente, N) :-
   giorno_disponibile(Settimana, Giorno), docente(Docente),
@@ -218,8 +218,6 @@ docente_ha_blocchi_di_quattro_ore_nel_giorno_iesimo(Settimana, Giorno, Docente, 
   N = #count { Insegnamento, OraInizio, OraFine :
                blocco(Insegnamento, Docente, 4, Settimana, Giorno, OraInizio, OraFine) }.
 
-
-
 % lo stesso docente non può superare 4 ore in un giorno
 :- docente(D), giorno_disponibile(S,G),
    docente_ha_blocchi_di_due_ore_nel_giorno_iesimo(S,G,D,N2),
@@ -228,7 +226,9 @@ docente_ha_blocchi_di_quattro_ore_nel_giorno_iesimo(Settimana, Giorno, Docente, 
    N2*2 + N3*3 + N4*4 > 4.
 
 
+
 % --- conteggi specifici per durata (per INSEGNAMENTO) --- 
+
 insegnamento_ha_blocchi_di_due_ore(Insegnamento, N) :- insegnamento(Insegnamento), 
     N = #count { Settimana, Giorno,Docente, OraInizio, OraFine : blocco(Insegnamento, Docente, 2, Settimana, Giorno, OraInizio, OraFine) }. 
 insegnamento_ha_blocchi_di_tre_ore(Insegnamento, N) :- insegnamento(Insegnamento), 
@@ -238,7 +238,6 @@ insegnamento_ha_blocchi_di_quattro_ore(Insegnamento, N) :- insegnamento(Insegnam
 % vincolo: a ciascun insegnamento 
 :- insegnamento(I), 
     I != presentazione_master, 
-    giorno_disponibile(S,G), 
     ore_per_insegnamento(I,OreTotali), 
     insegnamento_ha_blocchi_di_due_ore(I,N2), 
     insegnamento_ha_blocchi_di_tre_ore(I,N3), 
