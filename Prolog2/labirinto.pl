@@ -6,6 +6,10 @@ occupata(pos(2,5)).
 occupata(pos(3,5)).
 occupata(pos(4,5)).
 occupata(pos(5,5)).
+occupata(pos(2,5)).
+occupata(pos(3,5)).
+occupata(pos(4,5)).
+occupata(pos(5,5)).
 occupata(pos(6,5)).
 occupata(pos(7,5)).
 occupata(pos(7,1)).
@@ -20,6 +24,10 @@ occupata(pos(5,7)).
 occupata(pos(6,7)).
 occupata(pos(7,7)).
 occupata(pos(8,7)).
+occupata(pos(8,8)).
+occupata(pos(8,9)).
+occupata(pos(8,10)).
+
 
 h_manhattan(pos(Xi,Yi), pos(Xf,Yf), Ris) :-
     DX is Xf - Xi,

@@ -11,7 +11,7 @@ ampiezza([[S,PathToS]|Coda],Visitati,Soluzione):-
     append(Coda,ListaNuoviStati,NuovaCoda),
     bubble_sort_wrapper(NuovaCoda, CodaOrdinata),
     ampiezza(CodaOrdinata,[S|Visitati],Soluzione).
-
+ampiezza([],_,_):- !,fail.
 generaListaNuoviStati(_,[],_,[]).
 generaListaNuoviStati([S,PathToS],[Az|AltreAzioni],Visitati,[[SNuovo,[Az|PathToS]]|NuoviS]):-
     trasforma(Az,S,SNuovo),
