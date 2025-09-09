@@ -3,7 +3,7 @@ num_righe(10).
 
 iniziale(pos(4,2)).
 finale(pos(7,9)).
-
+finale(pos(1,1)).
 occupata(pos(2,5)).
 occupata(pos(3,5)).
 occupata(pos(4,5)).
@@ -44,7 +44,7 @@ min_wrapper([Head|Tail], S, Best) :-
     min(Tail, InitialMin, Head, S, Best). 
 
 min([], _, CurrentBestGoal, _, CurrentBestGoal).
-min([Head|Tail], ActualMin, CurrentBestGoal, S, Best) :-
+min([Head|Tail], ActualMin, _, S, Best) :-
     distanza_manhattan(Head, S, MinHead),
     MinHead < ActualMin, !,
     min(Tail, MinHead, Head, S, Best).

@@ -1,55 +1,67 @@
 initialize :-
     retractall(soglia(_)),
-    retractall(salvati(_)),
-    iniziale(S0),
-    h(S0, H0),
-    asserta(soglia(H0)),
-    asserta(salvati([])).
+    retractall(prossimaSoglia(_)),
+    iniziale(Si),
+    f(0, Si, F0),              
+    asserta(soglia(F0)).
 
-% prova entro la soglia corrente (bound su f)
+% ---------- loop IDA* ----------
 ida_star(Cammino) :-
     soglia(Bound),
-    retractall(salvati(_)), asserta(salvati([])),  
-    profondita(Cammino, Bound).                     
+    % reset del contenitore "next bound"
+    retractall(prossimaSoglia(_)),
+    asserta(prossimaSoglia(none)),
+    profondita(Cammino, Bound), !.   % se trova soluzione, chiude qui
 
-
-% se non ha trovato: nuova soglia = min degli f(n) tagliati
+% alza la soglia se è stato salvato un overcut
 ida_star(Cammino) :-
-    salvati(L), 
-    L \= [], !,                        
-    min(L, NextBound),
+    prossimaSoglia(Next),
+    number(Next), !,
     retractall(soglia(_)),
-    asserta(soglia(NextBound)),
+    asserta(soglia(Next)),
     ida_star(Cammino).
 
-ida_star(Cammino) :-
-    salvati([]), !, fail.
+% nessun overcut raccolto: nessuna soluzione raggiungibile
+ida_star(_) :-
+    prossimaSoglia(none), !, fail.
 
+% ---------- DFS con bound su f = g + h ----------
 profondita(Cammino, Bound) :-
     iniziale(S0),
     ricerca(S0, 0, [S0], Bound, Cammino).
 
-% --- RICERCA DFS con bound su f = g + h ---
-
-% Successo: goal con f <= Bound
+% goal: anche qui controllo f<=Bound per coerenza
 ricerca(S, G, _Visitati, Bound, []) :-
+    finale(S),
     f(G, S, F),
-    F =< Bound,
-    finale(S), !.
+    F =< Bound, !.
 
-% Taglio: f > Bound -> salva f(n) e fallisci per backtracking
-ricerca(S, G, _Visitati, Bound, _Cammino) :-
+% taglio: f>Bound -> salva e fallisci per backtracking
+ricerca(S, G, _Visitati, Bound, _) :-
     f(G, S, F),
     F > Bound, !,
-    salvati(L0),
-    retract(salvati(L0)),
-    asserta(salvati([F|L0])),
+    salva(F),
     fail.
 
-% Espansione normale
-ricerca(S, G, Visitati, Bound, [Azione|Cammino]) :-
-    applicabile(Azione, S),
-    trasforma(Azione, S, S1),
+% espansione
+ricerca(S, G, Visitati, Bound, [Az|Cammino]) :-
+    applicabile(Az, S),
+    trasforma(Az, S, S1),
     \+ member(S1, Visitati),
     G1 is G + 1,
     ricerca(S1, G1, [S1|Visitati], Bound, Cammino).
+
+% ---------- aggiorna la prossima soglia (min degli overcut) ----------
+salva(Fs) :-
+    retract(prossimaSoglia(none)), !,
+    asserta(prossimaSoglia(Fs)).
+
+salva(Fs) :-
+    prossimaSoglia(Cur),
+    Fs < Cur, !,
+    retractall(prossimaSoglia(_)),
+    asserta(prossimaSoglia(Fs)).
+
+salva(Fs) :-
+    prossimaSoglia(Cur),
+    Fs >= Cur, !.
