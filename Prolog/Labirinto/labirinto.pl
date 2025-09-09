@@ -24,50 +24,33 @@ occupata(pos(7,7)).
 occupata(pos(8,7)).
 
 
+f(G, S, F) :-
+    custom_finale(S, BestGoal),
+    distanza_manhattan(S, BestGoal, H),
+    F is G + H.
 
-% f(G,S) = g + h
-f(G, S, F) :- h(S, H), F is G + H.
+distanza_manhattan(pos(Xi,Yi), pos(Xf,Yf), Ris) :-
+    DX is abs(Xi - Xf),
+    DY is abs(Yi - Yf),
+    Ris is DX + DY.
 
-distanza_manhattan(pos(Xi,Yi), pos(Xf,Yf), Ris) :- DeltaX is abs(Xi-Xf), DeltaY is abs(Yi-Yf), Ris is DeltaX + DeltaY.
+custom_finale(S, Best) :-
+    findall(G, finale(G), ListaFinali),
+    ListaFinali \= [],                     
+    min_wrapper(ListaFinali, S, Best).
 
-% conta quante finali/1 sono definite
-conta_finali(N) :-
-    conta_finali_acc([], 0, N).
+min_wrapper([Head|Tail], S, Best) :-
+    distanza_manhattan(Head, S, InitialMin),
+    min(Tail, InitialMin, Head, S, Best). 
 
-conta_finali_acc(Visti, Acc, N) :-
-    finale(F),
-    \+ member(F, Visti), !,
-    Acc1 is Acc + 1,
-    conta_finali_acc([F|Visti], Acc1, N).
-conta_finali_acc(_, Acc, Acc).
+min([], _, CurrentBestGoal, _, CurrentBestGoal).
+min([Head|Tail], ActualMin, CurrentBestGoal, S, Best) :-
+    distanza_manhattan(Head, S, MinHead),
+    MinHead < ActualMin, !,
+    min(Tail, MinHead, Head, S, Best).
+min([Head|Tail], ActualMin, CurrentBestGoal, S, Best) :-
+    distanza_manhattan(Head, S, MinHead),
+    MinHead >= ActualMin, !,
+    min(Tail, ActualMin, CurrentBestGoal, S, Best).
 
-% euristica h(S,H): minima Manhattan verso la finale più vicina
-h(S, 0) :-
-    finale(S), !.
 
-h(S, H) :-
-    conta_finali(N), N > 0,
-    mia_h(S, [], N, _, H), !.
-
-% mia_h(S, Visti, N, Best0, Best):
-%   visita N finali non ancora viste, aggiornando il migliore (minimo)
-mia_h(_, _, 0, Best, Best) :- nonvar(Best), !.
-mia_h(S, Visti, N, Best0, Best) :-
-    finale(F),
-    \+ member(F, Visti), !,
-    distanza_manhattan(S, F, D),
-    update_best(Best0, D, Best1),
-    N1 is N - 1,
-    mia_h(S, [F|Visti], N1, Best1, Best).
-
-% aggiorna il minimo corrente
-update_best(B0, D, D) :- var(B0), !.
-update_best(B0, D, D) :- number(B0), D < B0, !.
-update_best(B0, _, B0).
-
-min([], _):- !,false.
-min([Head | Tail], Ris) :- Tail = [], !, Ris is Head.
-min([Head | Tail],Ris) :- min_acc(Tail,Head, Ris).
-min_acc([Head | Tail], Min, Ris) :- Min > Head, !, min_acc(Tail, Head, Ris).
-min_acc([Head | Tail], Min, Ris) :- Min =< Head, !, min_acc(Tail, Min, Ris).
-min_acc([], Min, Min).
