@@ -1,7 +1,7 @@
 ric_a_star(Soluzione):-
     iniziale(S0),
-    ordina_stato(S0, S),
-    ampiezza([[S0,[]]],[],SoluzioneInversa),
+    order_state(S0, S),
+    ampiezza([[S,[]]],[],SoluzioneInversa),
     inverti(SoluzioneInversa,Soluzione).
 
 ampiezza([[S,PathToS]|_],_,PathToS):-

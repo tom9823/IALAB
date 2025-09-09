@@ -29,8 +29,8 @@ ida_star(_Cammino) :-
 % ---------- DFS con bound su f = g + h ----------
 profondita(Cammino, Bound) :-
     iniziale(S0),
-    ordina_stato(S, S0),
-    ricerca(S0, 0, [S0], Bound, Cammino).
+    order_state(S, S0),
+    ricerca(S, 0, [S0], Bound, Cammino).
 
 % successo: goal con f ≤ Bound
 ricerca(S, G, _Visitati, Bound, []) :-
