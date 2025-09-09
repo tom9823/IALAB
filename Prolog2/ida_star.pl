@@ -22,9 +22,6 @@ ida_star(Cammino):-
     asserta(soglia(SNuova)),
     ida_star(Cammino).
 
-ida_star(_) :-
-    next_bound([]), !, fail.
-
 profondita(Cammino,Soglia):-
     iniziale(S0),
     ricerca(S0,[S0],Soglia,Cammino).

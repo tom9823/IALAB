@@ -1,6 +1,6 @@
 ric_a_star(Soluzione):-
     iniziale(S0),
-    ordina_stato(S, S0),
+    ordina_stato(S0, S),
     ampiezza([[S0,[]]],[],SoluzioneInversa),
     inverti(SoluzioneInversa,Soluzione).
 
@@ -28,12 +28,9 @@ inverti([Head|Tail],Res):-
     inverti(Tail,TailInv),
     append(TailInv,[Head],Res).
 
-% ---------- utilità ----------
-len([], 0).
-len([_|T], N) :- len(T, N1), N is N1 + 1.
 
 f_da_coppia(Stato, Path, F) :-
-    len(Path, G),
+    length(Path, G),
     f(G, Stato, F).
 
 % ---------- inserimento ordinato di UN elemento ----------
