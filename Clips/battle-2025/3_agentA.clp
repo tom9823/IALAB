@@ -377,6 +377,78 @@
   (format t "[EXPAND] Left at (%d,%d): right cell (%d,%d) set CF 100%n"
           ?kx ?ky ?kx (+ ?ky 1))
 )
+
+; ===== Middle forti: 100 sui bordi laterali (y=0 o y=9) =====
+
+; SOPRA (x-1)
+(defrule exp-above-middle-in-side-columns
+  (declare (salience 80))
+  (k-cell
+    (x ?kx&:(>= ?kx 1))                       
+    (y ?ky&:(or (= ?ky 0) (= ?ky 9)))       
+    (content middle))
+  ; evita duplicati
+  (not (cell-cf (x ?ax&:(= ?ax (- ?kx 1))) (y ?ky)))
+  ; opzionale: non segnare se già noto water
+  (not (k-cell (x ?wx&:(= ?wx (- ?kx 1))) (y ?ky) (content water)))
+=>
+  (assert (cell-cf (x (- ?kx 1)) (y ?ky) (CF 100)))
+  (format t "[EXPAND] Middle lato (%d,%d): sopra -> (%d,%d) CF=100%n"
+          ?kx ?ky (- ?kx 1) ?ky)
+)
+
+; SOTTO (x+1)
+(defrule exp-below-middle-in-side-columns
+  (declare (salience 80))
+  (k-cell
+    (x ?kx&:(<= ?kx 8))                      
+    (y ?ky&:(or (= ?ky 0) (= ?ky 9)))
+    (content middle))
+  (not (cell-cf (x ?bx&:(= ?bx (+ ?kx 1))) (y ?ky)))
+  (not (k-cell (x ?wx&:(= ?wx (+ ?kx 1))) (y ?ky) (content water)))
+=>
+  (assert (cell-cf (x (+ ?kx 1)) (y ?ky) (CF 100)))
+  (format t "[EXPAND] Middle lato (%d,%d): sotto -> (%d,%d) CF=100%n"
+          ?kx ?ky (+ ?kx 1) ?ky)
+)
+
+; ===== Middle forti: 100 sulle prime/ultime righe (x=0 o x=9) =====
+
+; SINISTRA (y-1)
+(defrule exp-left-of-middle-in-top-bottom-rows
+  (declare (salience 80))
+  (k-cell
+    (x ?kx&:(or (= ?kx 0) (= ?kx 9)))        ; prima/ultima riga
+    (y ?ky&:(>= ?ky 1))                       ; per usare y-1
+    (content middle))
+  ; evita duplicati
+  (not (cell-cf (x ?kx) (y ?ly&:(= ?ly (- ?ky 1)))))
+  ; opzionale: non segnare se già noto water
+  (not (k-cell (x ?kx) (y ?wy&:(= ?wy (- ?ky 1))) (content water)))
+=>
+  (assert (cell-cf (x ?kx) (y (- ?ky 1)) (CF 100)))
+  (format t "[EXPAND] Middle riga (%d,%d): sinistra -> (%d,%d) CF=100%n"
+          ?kx ?ky ?kx (- ?ky 1))
+)
+
+; DESTRA (y+1)
+(defrule exp-right-of-middle-in-top-bottom-rows
+  (declare (salience 80))
+  (k-cell
+    (x ?kx&:(or (= ?kx 0) (= ?kx 9)))
+    (y ?ky&:(<= ?ky 8))                       ; per usare y+1
+    (content middle))
+  (not (cell-cf (x ?kx) (y ?ry&:(= ?ry (+ ?ky 1)))))
+  (not (k-cell (x ?kx) (y ?wy&:(= ?wy (+ ?ky 1))) (content water)))
+=>
+  (assert (cell-cf (x ?kx) (y (+ ?ky 1)) (CF 100)))
+  (format t "[EXPAND] Middle riga (%d,%d): destra -> (%d,%d) CF=100%n"
+          ?kx ?ky ?kx (+ ?ky 1))
+)
+
+
+
+
 ; ---------------------------------------------
 ; Vantaggi a distanza (solo DIS2 e DIS3)
 ;  - DIS2: 3/7 => CF 43
