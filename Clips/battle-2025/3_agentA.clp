@@ -23,21 +23,6 @@
   (slot CF (type INTEGER))
 )
 
-; --- Marker per non ripetere il bonus negli step successivi
-(deftemplate exp-above-middle-step-mark
-  (slot sx (type INTEGER) (range 0 9))   ; sorgente: middle
-  (slot sy (type INTEGER) (range 0 9))
-  (slot x  (type INTEGER) (range 0 9))   ; target che ha ricevuto il bonus
-  (slot y  (type INTEGER) (range 0 9))
-)
-
-(deftemplate exp-below-middle-step-mark
-  (slot sx (type INTEGER) (range 0 9))
-  (slot sy (type INTEGER) (range 0 9))
-  (slot x  (type INTEGER) (range 0 9))
-  (slot y  (type INTEGER) (range 0 9))
-)
-
 
 (deftemplate cell-hp
   (slot x  (type INTEGER) (range 0 9))
@@ -510,35 +495,7 @@
           ?kx ?ky (- ?kx 1) ?ky)
 )
 
-; ---------------------------------------------
-; bonus temporizzati (step<5)
-; ---------------------------------------------
-(defrule exp-above-middle-step (declare (salience 76))
-  (status (step ?s&:(< ?s 5)))
-  (k-cell (x ?kx&:(>= ?kx 1)) (y ?ky) (content middle))  ; x-1 => x>=1
-  (not (k-cell (x =(- ?kx 1)) (y ?ky)))                  
-  (not (exp-above-middle-step-mark
-         (sx ?kx) (sy ?ky) (x =(- ?kx 1)) (y ?ky)))
-=>
-  (assert (cell-cf (x (- ?kx 1)) (y ?ky) (CF 20)))
-  (assert (exp-above-middle-step-mark (sx ?kx) (sy ?ky) (x (- ?kx 1)) (y ?ky)))
-  (format t "[BOOST] Step %d: middle at (%d,%d) -> above (%d,%d) +20%n"
-          ?s ?kx ?ky (- ?kx 1) ?ky)
-)
 
-; Sotto a middle e step<5 -> +20
-(defrule exp-below-middle-step (declare (salience 76))
-  (status (step ?s&:(< ?s 5)))
-  (k-cell (x ?kx&:(<= ?kx 8)) (y ?ky) (content middle))  ; x+1 => x<=8
-  (not (k-cell (x =(+ ?kx 1)) (y ?ky)))                 
-  (not (exp-below-middle-step-mark
-         (sx ?kx) (sy ?ky) (x =(+ ?kx 1)) (y ?ky)))
-=>
-  (assert (cell-cf (x (+ ?kx 1)) (y ?ky) (CF 20)))
-  (assert (exp-below-middle-step-mark (sx ?kx) (sy ?ky) (x (+ ?kx 1)) (y ?ky)))
-  (format t "[BOOST] Step %d: middle at (%d,%d) -> below (%d,%d) +20%n"
-          ?s ?kx ?ky (+ ?kx 1) ?ky)
-)
 ; ---------------------------------------------
 ; micro-influenze riga/colonna (+1 / −5 con HP--)
 ; ---------------------------------------------
