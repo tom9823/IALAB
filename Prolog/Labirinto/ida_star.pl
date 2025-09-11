@@ -1,9 +1,11 @@
+
 initialize :-
     retractall(soglia(_)),
     retractall(prossimaSoglia(_)),
     iniziale(Si),
-    f(0, Si, F0),              
-    asserta(soglia(F0)).
+    f(0, Si, F0),
+    asserta(soglia(F0)),
+    write('Soglia iniziale = '), write(F0), nl.
 
 % ---------- loop IDA* ----------
 ida_star(Cammino) :-
@@ -11,19 +13,26 @@ ida_star(Cammino) :-
     % reset del contenitore "next bound"
     retractall(prossimaSoglia(_)),
     asserta(prossimaSoglia(none)),
-    profondita(Cammino, Bound), !.   % se trova soluzione, chiude qui
+    write('IDA*: iterazione con soglia = '), write(Bound), nl,
+    profondita(Cammino, Bound).
 
 % alza la soglia se è stato salvato un overcut
 ida_star(Cammino) :-
     prossimaSoglia(Next),
     number(Next), !,
+    soglia(Old),
     retractall(soglia(_)),
     asserta(soglia(Next)),
+    write('Alzo soglia: '), write(Old), write(' -> '), write(Next), nl,
     ida_star(Cammino).
 
 % nessun overcut raccolto: nessuna soluzione raggiungibile
 ida_star(_) :-
-    prossimaSoglia(none), !, fail.
+    prossimaSoglia(none), !,
+    soglia(B),
+    write('IDA*: nessun overcut raccolto. Nessuna soluzione con soglia '),
+    write(B), nl,
+    fail.
 
 % ---------- DFS con bound su f = g + h ----------
 profondita(Cammino, Bound) :-
@@ -41,7 +50,7 @@ ricerca(S, G, _Visitati, Bound, _) :-
     f(G, S, F),
     F > Bound, !,
     salva(F),
-    fail.
+    F =< Bound.
 
 % espansione
 ricerca(S, G, Visitati, Bound, [Az|Cammino]) :-
@@ -54,14 +63,16 @@ ricerca(S, G, Visitati, Bound, [Az|Cammino]) :-
 % ---------- aggiorna la prossima soglia (min degli overcut) ----------
 salva(Fs) :-
     retract(prossimaSoglia(none)), !,
-    asserta(prossimaSoglia(Fs)).
+    asserta(prossimaSoglia(Fs)),
+    write('prossimaSoglia := '), write(Fs), nl.
 
 salva(Fs) :-
     prossimaSoglia(Cur),
     Fs < Cur, !,
     retractall(prossimaSoglia(_)),
-    asserta(prossimaSoglia(Fs)).
+    asserta(prossimaSoglia(Fs)),
+    write('prossimaSoglia aggiornata: '),
+    write(Cur), write(' -> '), write(Fs), nl.
 
-salva(Fs) :-
-    prossimaSoglia(Cur),
-    Fs >= Cur, !.
+salva(_Fs) :-
+    prossimaSoglia(_Cur), !.

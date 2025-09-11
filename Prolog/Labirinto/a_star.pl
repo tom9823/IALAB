@@ -1,4 +1,4 @@
-ric_a_star(Soluzione):-
+a_star(Soluzione):-
     iniziale(S0),
     ampiezza([[S0,[]]],[],SoluzioneInversa),
     inverti(SoluzioneInversa,Soluzione).

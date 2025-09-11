@@ -1,4 +1,4 @@
-ric_a_star(Soluzione):-
+a_star(Soluzione):-
     iniziale(S0),
     order_state(S0, S),
     ampiezza([[S,[]]],[],SoluzioneInversa),

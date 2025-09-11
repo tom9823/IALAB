@@ -38,25 +38,3 @@ my_delete_from_list(Elem, [Elem|Tail], Rest) :-
 my_delete_from_list(Elem, [Head|Tail], [Head|Rest]) :-
     dif(Head, Elem),
     my_delete_from_list(Elem, Tail, Rest).
-
-
-% --- insertion sort su pos/3: ordina per riga (X) poi colonna (Y) ---
-
-order_state([], []).
-order_state([Head|Tail], StatoOrdinato) :-
-    order_state(Tail, OrderedTail),
-    ordered_insert(Head, OrderedTail, StatoOrdinato).
-
-% inserimento stabile
-ordered_insert(Elem, [], [Elem]).
-ordered_insert(Elem, [Head|Tail], [Elem,Head|Tail]) :-
-    before_than(Elem, Head), !.
-ordered_insert(Elem, [Head|Tail], [Head|Ris]) :-
-    ordered_insert(Elem, Tail, Ris).
-
-% lessicografico: prima X, poi Y (entrambi stretti)
-before_than(pos(X1,Y1,_), pos(X2,Y2,_)) :-
-    X1 < X2, !.
-before_than(pos(X1,Y1,_), pos(X2,Y2,_)) :-
-    X1 =:= X2,
-    Y1 < Y2.
