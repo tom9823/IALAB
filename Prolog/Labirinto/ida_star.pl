@@ -55,23 +55,23 @@ ricerca(S, G, _Visitati, Bound, _) :-
 % espansione
 ricerca(S, G, Visitati, Bound, [Az|Cammino]) :-
     applicabile(Az, S),
-    trasforma(Az, S, S1),
-    \+ member(S1, Visitati),
+    trasforma(Az, S, SNuovo),
+    \+ member(SNuovo, Visitati),
     G1 is G + 1,
-    ricerca(S1, G1, [S1|Visitati], Bound, Cammino).
+    ricerca(SNuovo, G1, [SNuovo|Visitati], Bound, Cammino).
 
 % ---------- aggiorna la prossima soglia (min degli overcut) ----------
 salva(Fs) :-
     retract(prossimaSoglia(none)), !,
     asserta(prossimaSoglia(Fs)),
-    write('prossimaSoglia := '), write(Fs), nl.
+    write('Scrivo la prossimaSoglia := '), write(Fs), nl.
 
 salva(Fs) :-
     prossimaSoglia(Cur),
     Fs < Cur, !,
     retractall(prossimaSoglia(_)),
     asserta(prossimaSoglia(Fs)),
-    write('prossimaSoglia aggiornata: '),
+    write('Aggiorno prossimaSoglia: '),
     write(Cur), write(' -> '), write(Fs), nl.
 
 salva(_Fs) :-

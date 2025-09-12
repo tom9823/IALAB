@@ -62,23 +62,10 @@ manh_acc([pos(R,C,8)|T], Acc, H)  :- !,
     DX is abs(R-3), DY is abs(C-2), Acc1 is Acc + DX + DY,
     manh_acc(T, Acc1, H).
 
-% --- insertion sort su pos/3: ordina per riga (X) poi colonna (Y) ---
 
-order_state([], []).
-order_state([Head|Tail], StatoOrdinato) :-
-    order_state(Tail, OrderedTail),
-    ordered_insert(Head, OrderedTail, StatoOrdinato).
-
-% inserimento stabile
-ordered_insert(Elem, [], [Elem]).
-ordered_insert(Elem, [Head|Tail], [Elem,Head|Tail]) :-
-    before_than(Elem, Head), !.
-ordered_insert(Elem, [Head|Tail], [Head|Ris]) :-
-    ordered_insert(Elem, Tail, Ris).
-
-% lessicografico: prima X, poi Y (entrambi stretti)
-before_than(pos(X1,_,_), pos(X2,_,_)) :-
-    X1 < X2, !.
-before_than(pos(X1,Y1,_), pos(X2,Y2,_)) :-
-    X1 =:= X2,
-    Y1 < Y2.
+min([], _):- !,false.
+min([Head | Tail], Ris) :- Tail = [], !, Ris is Head.
+min([Head | Tail],Ris) :- min_acc(Tail,Head, Ris).
+min_acc([Head | Tail], Min, Ris) :- Min > Head, !, min_acc(Tail, Head, Ris).
+min_acc([Head | Tail], Min, Ris) :- Min =< Head, !, min_acc(Tail, Min, Ris).
+min_acc([], Min, Min).
