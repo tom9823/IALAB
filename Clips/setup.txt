@@ -1,0 +1,70 @@
+; go_new.bat — setup Battle 2025
+
+(clear)
+
+; 0) MAIN
+(load "/Users/lucatomatis/Desktop/IALAB/Clips/battle-2025/0_Main.clp")
+(agenda)
+
+; 1) ENV
+(load "/Users/lucatomatis/Desktop/IALAB/Clips/battle-2025/1_Env.clp")
+
+; 2) CASE
+(load "/Users/lucatomatis/Desktop/IALAB/Clips/battle-2025/mapEnvironment.clp")
+(load "/Users/lucatomatis/Desktop/IALAB/Clips/battle-2025/mapEnvironmentNoKcells.clp")
+(load "/Users/lucatomatis/Desktop/IALAB/Clips/battle-2025/mapEnvironment1.clp")
+(load "/Users/lucatomatis/Desktop/IALAB/Clips/battle-2025/mapEnvironment1NoKcells.clp")
+(load "/Users/lucatomatis/Desktop/IALAB/Clips/battle-2025/mapEnvironment2.clp")
+(load "/Users/lucatomatis/Desktop/IALAB/Clips/battle-2025/mapEnvironment2Better.clp")
+(load "/Users/lucatomatis/Desktop/IALAB/Clips/battle-2025/mapEnvironment2NoKcells.clp")
+
+
+; 3) AGENT
+(load "/Users/lucatomatis/Desktop/IALAB/Clips/battle-2025/3_agentA.clp")
+(load "/Users/lucatomatis/Desktop/IALAB/Clips/battle-2025/3_agentB.clp")
+
+; reset finale (asserisce i deffacts iniziali)
+(reset)
+
+AGENTE CF
+
+Your score is 50
+mapEnvironment2
+
+Your score is 335
+mapEnvironment2NoKcells
+
+mapEnvironment1
+Your score is 190
+
+mapEnvironment1NoKcells
+Your score is 190
+
+mapEnvironment
+Your score is 190
+
+mapEnvironmentNoKcells
+Your score is 155
+
+
+AGENTE NORMALE
+mapEnvironment1
+Your score is -10
+
+mapEnvironment1NoKcells
+Your score is -130
+
+mapEnvironment2
+Your score is -190
+
+mapEnvironment2NoKcells
+Your score is -310
+
+mapEnvironment
+Your score is -95
+
+mapEnvironmentNoKcells
+Your score is -150
+
+
+
