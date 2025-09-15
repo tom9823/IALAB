@@ -109,7 +109,7 @@
 (boat-ver (name nav8) (y 8) (xs 5 6 ) (size 2) (status safe safe ))
 (boat-ver (name nav9) (y 4) (xs 6 7 8 ) (size 3) (status safe safe safe ))
 (boat-hor (name sub10) (x 8) (ys 9) (size 1) (status safe))
-(k-cell (x 0) (y 4) (content middle))
+(k-cell (x 4) (y 4) (content bot))
 (k-cell (x 5) (y 2) (content sub))
 (k-cell (x 9) (y 0) (content water))
 (k-cell (x 9) (y 5) (content water))
